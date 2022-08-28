@@ -48,7 +48,7 @@ global class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
                for(Integer i=0; i<CsvHeader.size();i++)
                {
         
-                   if(csvFileds[i].deleteWhitespace().equals(CsvHeader[i].deleteWhitespace()))
+                   if(csvFileds.contains(CsvHeader[i].deleteWhitespace()))
                    {
                        Count++;
                        

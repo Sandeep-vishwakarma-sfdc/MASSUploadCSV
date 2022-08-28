@@ -1,0 +1,45 @@
+String sObjectTypeApi = 'Price_Block_Margin_Matrix__c';
+Schema.SObjectType t = Schema.getGlobalDescribe().get(sObjectTypeApi);
+SObject obj= t.newSObject();
+Profit_Center__c pc = new Profit_Center__c();
+String profitCeneterCombinationKey = '5100LA0005';
+pc.Combination_Key__c = profitCeneterCombinationKey;
+obj.putSObject('Profit_Center__r', pc);    
+
+
+String sObjectTypeApi = 'Price_Block_Margin_Matrix__c';
+Schema.SObjectType t = Schema.getGlobalDescribe().get(sObjectTypeApi);
+Map<String,Schema.SObjectType> describe=  Schema.getGlobalDescribe();
+Map<String,Schema.SObjectField> objectField=  describe.get(sObjectTypeApi).getDescribe().fields.getMap();  
+System.debug('Mappping Field'+objectField);
+for(Schema.SObjectField fields:objectField.values()){
+    System.debug('Fields Schema '+fields);
+}
+
+
+SObjectField lookup = Contact.AccountId, external = Account.Counsyl_Id__c;
+SObjectType childType = Contact.sObjectType, parentType = Account.sObjectType;
+String relationshipName = lookup.getDescribe().getRelationshipName();
+Map<SObjectField, Object> requiredFields = new Map<SObjectField, Object>
+{
+    Contact.LastName => 'Doe'
+};
+
+SObject parent = parentType.newSObject();
+parent.put(external, '12345');
+
+SObject child = childType.newSObject();
+child.putSObject(relationshipName, parent);
+for (SObjectField field : requiredFields.keySet())
+    child.put(field, requiredFields.get(field));
+insert child;
+
+List<String> dummyString = new List<String>();
+dummyString.add('Profit_Center__r');
+dummyString.add('Sales_Org__r');
+dummyString.add('SKU_Code__r');
+dummyString.add('UOM__c');
+dummyString.add('Start_Date__c');
+dummyString.add(null);
+
+System.debug(dummyString.indexOf(null));
