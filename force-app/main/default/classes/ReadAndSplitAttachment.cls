@@ -11,7 +11,7 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
         { 
 			Mass_Upload_CSV__c massupload=(Mass_Upload_CSV__c) n;
             System.debug('Record Type '+massupload.RecordTypeId +' ' +MassUploadSplitRecordTypeId+ ' isAttach '+massupload.isAttachment__c);
-            if(massupload.isAttachment__c==true && massupload.recordTypeId == MassUploadSplitRecordTypeId && (massupload.Status__c=='Draft' || massupload.Status__c=='Rejected'))
+            if(massupload.isAttachment__c==true && massupload.recordTypeId == MassUploadSplitRecordTypeId && (massupload.Status__c=='Inprogress'))
 			{
                 System.debug('Mass Upload Id '+massupload.id);
 				mapitems.put(massupload.id,n);
@@ -27,7 +27,7 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
     }
    
     public void execute(QueueableContext context) {
-        System.debug('Hello');
+        
         if(newItems.values().size()>0){
         	Map<String,ContentVersion> mapContentversion = mapMassUploadToContentVersionData(newItems);
         	divideCSV(this.newItems,mapContentversion);
@@ -40,11 +40,11 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
            List<String> contentVersionIds = getContentVersionIds(splitMassupload); 
            MassUploadProcessAttachmentBatch batchobj= new MassUploadProcessAttachmentBatch(contentVersionIds);
            Database.executeBatch(batchobj,1); 
+           
             
         }
         
     }    
-   
 
     private Map<String,ContentVersion> mapMassUploadToContentVersionData(Map<Id,SObject> newItems){
         Map<String,ContentVersion> mapContentversion=new Map<String,ContentVersion>();
@@ -84,15 +84,15 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
             Integer divideCsv = 0;
             csvBodysize = csvbody.size();
             System.debug('csvBodysize'+csvBodysize);
-            if(csvBodysize<=3000){
+            if(csvBodysize<=1000){
                 divideCsv = csvBodysize;
                 System.debug('Divinding File into 1 parts');
             }
-            else if(csvBodysize<=6000){
+            else if(csvBodysize<=2500){
                 divideCsv = csvBodysize/2;
                 System.debug('Divinding File into 2 parts');
             }
-            else if(csvBodysize<=15000){
+            else if(csvBodysize<=16000){
                 divideCsv = csvBodysize/3;
                 System.debug('Divinding File into 3 parts');
             }
@@ -119,6 +119,7 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
                     csvAttachment.clear();
                     countCSVSplitSize =1;
                 }
+
                 else if(j==divideCsv*2){
                     System.debug('Creating File part 2');
                     csv = String.join(csvAttachment, '\r\n');
@@ -155,7 +156,7 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
        // System.debug('divide csv  data is'+ csvAttachment);
         Mass_Upload_CSV__c massupload =(Mass_Upload_CSV__c) item.clone();
         massupload.RecordTypeId = Schema.SObjectType.Mass_Upload_CSV__c.getRecordTypeInfosByName().get('Split').getRecordTypeId();
-        massupload.Status__c='Draft';
+        massupload.Status__c='Inprogress';
         massupload.Parent__c=item.id;
         massupload.Name=massupload.Name+'-Split'+this.count;
         massupload.Total_records__c=csvAttachment-1;
@@ -164,8 +165,8 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
         List<ContentVersion> con=new List<ContentVersion>();                    
         ContentVersion content = new ContentVersion();
         content.VersionData=Blob.valueOf(header+'\n'+csv);
-        content.Title=massupload.File_Name__c;
-        content.PathOnClient=massupload.File_Name__c +'.'+'csv';
+        content.Title=massupload.File_Name__c+'-Split'+this.count;
+        content.PathOnClient=massupload.File_Name__c+'-Split'+this.count +'.'+'csv';
         content.IsMajorVersion=true;
         con.add(content);
         insert con;

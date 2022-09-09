@@ -43,3 +43,38 @@ dummyString.add('Start_Date__c');
 dummyString.add(null);
 
 System.debug(dummyString.indexOf(null));
+
+
+List<String> FileNames = ConnectToSharePoint.readFilesName('folder1');
+
+//https://upllimited.sharepoint.com/sites/spdevelopment/_api/web/GetFileByServerRelativeUrl('/sites/spdevelopment/PLNMarginData/folder1/CSV test 1.csv')/$value
+
+
+-------------------------------------------------------------------------------------------
+String folderName = 'folder1';
+List<String> fileNames = new List<String>();
+fileNames = ConnectToSharePoint.readFilesName(folderName);
+for(string name:fileNames){
+    System.debug('Name '+name);
+}
+
+-------------------------------------------------------------------------------------------
+SharePointDetails__c sharepointDetail = ConnectToSharePoint.getSharePointdetails();
+String appendFolder = sharepointDetail.Get_CSV_File_URL__c + folderName+'/'+fileName+'\')'+'/$value';
+System.debug('appendFolder '+appendFolder);
+
+String fileName = 'file4.csv';
+String folderName = 'folder1';
+BatchGetCSVContent bacth = new BatchGetCSVContent(folderName);
+bacth.csvContent(folderName,fileName);
+-----------------------------------------------------------------------------------------------
+
+String filname = 'SalesDeduction';
+String folderName = 'folder1'; // TODO : Dynamic folder i.e refrence folderName from this.folderName
+BatchGetCSVContent batch = new BatchGetCSVContent(folderName);
+String csvBody = batch.csvContent(folderName,filname);
+Blob content = Blob.valueOf(csvBody);
+Mass_Upload_CSV__c massupload = batch.createMassUpload('SalesDeduction'); //TODO: Dyanamic Type from fileName
+batch.createFiles(massupload,content);
+
+------------------------------------------------------------------------------------------

@@ -43,15 +43,17 @@ public with sharing class ContentVersionTriggerHelper {
         }
         System.debug('content Link id is' +MassUploadIds);
         
-        List<Mass_Upload_CSV__c> massUploadCSVs = [SELECT Id,isAttachment__c FROM Mass_Upload_CSV__c WHERE Id IN : MassUploadIds];
+        List<Mass_Upload_CSV__c> massUploadCSVs = [SELECT Id,isAttachment__c,Status__c FROM Mass_Upload_CSV__c WHERE Id IN : MassUploadIds];
         
         if(massuploadCSVs.size() > 0){
             System.debug('Is Checkbox True?==>'+massUploadCSVs[0].isAttachment__c);
             
             massUploadCSVs[0].isAttachment__c = true;
+            massUploadCSVs[0].Status__c='Inprogress';
             IsAttachmentupdated=false;
             System.debug('Checkbox True==>'+massUploadCSVs[0].isAttachment__c);
         }
+        
         update massUploadCSVs;
         
     }
