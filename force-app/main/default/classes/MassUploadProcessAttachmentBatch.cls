@@ -44,30 +44,7 @@ global class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
                list<String> csvFileds=massupload.CSV_fields__c.split(';');
                System.debug('csvFileds is==>'+csvFileds);
                List<String> csvbody=splitObj.safeSplit(contentvar.VersionData.toString(), '\n');
-               /*list<String> CsvHeader=csvbody[0].replaceAll('\u0009','').trim().split(',');
-               List<String> csvAttachment = new List<String>();
-              
-               Integer Count=0;
-               for(Integer i=0; i<CsvHeader.size();i++)
-               {
-        
-                   if(csvFileds.contains(CsvHeader[i].deleteWhitespace()))
-                   {
-                       Count++;
-                       
-                   }
-               }
-               if(Count==CsvHeader.size())
-               {
-                   System.debug('Success');
-                   MassUploadProcessAttachmentBatchHelper.createRecords(csvbody,massupload);
-               }
-               else
-               {
-                   System.debug('Error');
-               }
-               */
-            	MassUploadProcessAttachmentBatchHelper.createRecords(csvbody,massupload);
+               MassUploadProcessAttachmentBatchHelper.createRecords(csvbody,massupload);
 
            }
         }
@@ -108,7 +85,7 @@ global class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
             parentMassUpload.Comments__c=split.Comments__c; 
             }
         //parentMassUpload.Status__c='Completed';
-        update parentMassUpload; 
+        // update parentMassUpload; 
     }
           
   }
