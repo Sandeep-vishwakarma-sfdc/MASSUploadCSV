@@ -1,7 +1,7 @@
 trigger ContentVersionTrigger on ContentVersion (after insert,after update) {
-    if ((trigger.isInsert && trigger.isafter && ContentVersionTriggerHelper.IsAttachmentupdated) || (trigger.isupdate && trigger.isafter && ContentVersionTriggerHelper.IsAttachmentupdated)){
-  ContentVersionTriggerHelper.updateMassUploadCSV(trigger.newmap);
-       }
+    if ((trigger.isInsert || trigger.isupdate) && trigger.isafter && ContentVersionTriggerHelper.IsAttachmentupdated && ContentVersionTriggerHelper.triggerExecuted!=false){
+        ContentVersionTriggerHelper.updateMassUploadCSV(trigger.newmap);
+     }
    if(ContentVersionTriggerHelper.triggerExecuted){
        
        return; 
@@ -50,5 +50,4 @@ trigger ContentVersionTrigger on ContentVersion (after insert,after update) {
     if(!cdlNewList.isEmpty()){
         insert cdlNewList;
     }
-    ContentVersionTriggerHelper.triggerExecuted = true;
 }

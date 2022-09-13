@@ -84,20 +84,25 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
             Integer divideCsv = 0;
             csvBodysize = csvbody.size();
             System.debug('csvBodysize'+csvBodysize);
-            if(csvBodysize<=1000){
+            if(csvBodysize<=5000){
                 divideCsv = csvBodysize;
                 System.debug('Divinding File into 1 parts');
             }
-            else if(csvBodysize<=2500){
+            else if(csvBodysize<=10000){
                 divideCsv = csvBodysize/2;
                 System.debug('Divinding File into 2 parts');
             }
-            else if(csvBodysize<=16000){
+            else if(csvBodysize<=15000){
                 divideCsv = csvBodysize/3;
                 System.debug('Divinding File into 3 parts');
             }
-            else{
+            else if(csvBodysize<=20000){
                 divideCsv = csvBodysize/4;
+                System.debug('Divinding File into 4 parts');
+            }
+            else{
+                Double noOfFiles = csvBodysize/5000;
+                divideCsv = csvBodysize/Integer.valueOf(Math.Floor(noOfFiles));
                 System.debug('Divinding File into 4 parts');
             }
             
@@ -129,6 +134,14 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
                     countCSVSplitSize = 1;
                 }
                 else if(j==divideCsv*3){
+                    System.debug('Creating File part 3');
+                    csv = String.join(csvAttachment, '\r\n');
+                    csv+='\r\n';
+                    createSplitFile(item,csv,header,countCSVSplitSize);
+                    csvAttachment.clear();
+                    countCSVSplitSize = 1;
+                }
+                else if(j==divideCsv*4){
                     System.debug('Creating File part 3');
                     csv = String.join(csvAttachment, '\r\n');
                     csv+='\r\n';

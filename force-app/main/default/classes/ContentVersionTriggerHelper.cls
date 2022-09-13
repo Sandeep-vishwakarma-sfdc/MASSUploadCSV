@@ -42,8 +42,8 @@ public with sharing class ContentVersionTriggerHelper {
             MassUploadIds.add(linkId.LinkedEntityId);
         }
         System.debug('content Link id is' +MassUploadIds);
-        
-        List<Mass_Upload_CSV__c> massUploadCSVs = [SELECT Id,isAttachment__c,Status__c FROM Mass_Upload_CSV__c WHERE Id IN : MassUploadIds];
+        Id MassUploadRecordTypeId = [SELECT Id, Name, DeveloperName, SobjectType, IsActive FROM RecordType where SobjectType='Mass_Upload_CSV__c' and Name='Original' limit 1].Id;
+        List<Mass_Upload_CSV__c> massUploadCSVs = [SELECT Id,isAttachment__c,Status__c FROM Mass_Upload_CSV__c WHERE Id IN : MassUploadIds and recordTypeId=:MassUploadRecordTypeId];
         
         if(massuploadCSVs.size() > 0){
             System.debug('Is Checkbox True?==>'+massUploadCSVs[0].isAttachment__c);
@@ -55,6 +55,7 @@ public with sharing class ContentVersionTriggerHelper {
         }
         
         update massUploadCSVs;
+        triggerExecuted = true;
         
     }
     

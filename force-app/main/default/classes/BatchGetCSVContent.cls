@@ -1,5 +1,5 @@
 public with sharing class BatchGetCSVContent implements Database.Batchable<String>{
-    String  folderName = 'folder1';
+    String  folderName = 'folder1';//Default folder Name
     public BatchGetCSVContent(String folderName){
         folderName = folderName;
     }
@@ -14,12 +14,13 @@ public with sharing class BatchGetCSVContent implements Database.Batchable<Strin
         String filname = fileNames[0]; 
         String csvBody = csvContent(this.folderName,filname);
         Blob content = Blob.valueOf(csvBody);
-        Mass_Upload_CSV__c massupload = createMassUpload('SalesDeduction'); //TODO: Dyanamic Type from fileName
+        Mass_Upload_CSV__c massupload = createMassUpload(filname); //TODO: Dyanamic Type from fileName
         createFiles(massupload,content);
 
     }
   
     public void finish(Database.BatchableContext bc){
+        System.debug('Batch Complete');
     }
 
     public String csvContent(String folderName,String fileName){
@@ -40,9 +41,6 @@ public with sharing class BatchGetCSVContent implements Database.Batchable<Strin
         return csvbody;
     }
 
-    public void linkFilesToMassUpload(){
-
-    }
     public  Mass_Upload_CSV__c createMassUpload(String type){
         MassUploadExternalIdRecords__c massUploadExternalIdRecords = [select Id,Name,DataType__c,ExternalId__c,ObjectName__c,FieldUseInCombinationKey__c,isRecordType__c,Type__c,CSVFields__c,TypeApiName__c from MassUploadExternalIdRecords__c where Type__c =:type limit 1];   
         Id MassUploadSplitRecordTypeId = [SELECT Id, Name, DeveloperName, SobjectType, IsActive FROM RecordType where SobjectType='Mass_Upload_CSV__c' and Name='Original' limit 1].Id;
