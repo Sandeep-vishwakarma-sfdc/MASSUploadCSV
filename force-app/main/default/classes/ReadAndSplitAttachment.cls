@@ -84,26 +84,12 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
             Integer divideCsv = 0;
             csvBodysize = csvbody.size();
             System.debug('csvBodysize'+csvBodysize);
-            if(csvBodysize<=5000){
+            if(csvBodysize<=4000){
                 divideCsv = csvBodysize;
                 System.debug('Divinding File into 1 parts');
-            }
-            else if(csvBodysize<=10000){
-                divideCsv = csvBodysize/2;
-                System.debug('Divinding File into 2 parts');
-            }
-            else if(csvBodysize<=15000){
-                divideCsv = csvBodysize/3;
-                System.debug('Divinding File into 3 parts');
-            }
-            else if(csvBodysize<=20000){
-                divideCsv = csvBodysize/4;
-                System.debug('Divinding File into 4 parts');
-            }
-            else{
-                Double noOfFiles = csvBodysize/5000;
+            }else{
+                Double noOfFiles = csvBodysize/7000;
                 divideCsv = csvBodysize/Integer.valueOf(Math.Floor(noOfFiles));
-                System.debug('Divinding File into 4 parts');
             }
             
             String idStr=UserInfo.getUserId();
@@ -112,50 +98,28 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
             String header = csvbody[0].replaceAll('\u0009','').trim();
             System.debug('Header is'+header);
             Integer countCSVSplitSize = 1;
+            Integer n=1;
             for(Integer j=1; j < csvbody.size(); j++){
                 csvAttachment.add(csvbody[j].replaceAll('\u0009','').trim());
                 System.debug('Count '+j+' Divide CSV '+divideCsv);
                 countCSVSplitSize ++;
-                if(j==divideCsv){
+                    
+                if(j==divideCsv*n){
                     System.debug('Creating File part 1');
                     csv = String.join(csvAttachment, '\r\n');
-                    csv+='\r\n';
+                    csv+='\r';
                     createSplitFile(item,csv,header,countCSVSplitSize);
                     csvAttachment.clear();
                     countCSVSplitSize =1;
+                    n++;
                 }
-
-                else if(j==divideCsv*2){
-                    System.debug('Creating File part 2');
+                else if(j==csvbody.size()-1)
+                {
                     csv = String.join(csvAttachment, '\r\n');
-                    csv+='\r\n';
+                    csv+='\r';
                     createSplitFile(item,csv,header,countCSVSplitSize);
                     csvAttachment.clear();
-                    countCSVSplitSize = 1;
-                }
-                else if(j==divideCsv*3){
-                    System.debug('Creating File part 3');
-                    csv = String.join(csvAttachment, '\r\n');
-                    csv+='\r\n';
-                    createSplitFile(item,csv,header,countCSVSplitSize);
-                    csvAttachment.clear();
-                    countCSVSplitSize = 1;
-                }
-                else if(j==divideCsv*4){
-                    System.debug('Creating File part 3');
-                    csv = String.join(csvAttachment, '\r\n');
-                    csv+='\r\n';
-                    createSplitFile(item,csv,header,countCSVSplitSize);
-                    csvAttachment.clear();
-                    countCSVSplitSize = 1;
-                }
-                else if(j==csvbody.size()-1){
-                    System.debug('Creating File part 4');
-                    csv = String.join(csvAttachment, '\r\n');
-                    csv+='\r\n';
-                    createSplitFile(item,csv,header,countCSVSplitSize);
-                    csvAttachment.clear();
-                    countCSVSplitSize = 1;
+                    countCSVSplitSize =1;   
                 }
                 
             }

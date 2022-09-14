@@ -35,7 +35,7 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
             }
         } catch (Exception e) {
             massupload.Comments__c=e.getMessage();
-            massupload.Status__c='Rejected';
+            massupload.Status__c='Completed';
 	        update massupload;
             System.abortJob(bc.getJobId());
         }
@@ -52,6 +52,8 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
         Decimal successCount=0;
         Decimal errorCount=0;
         Decimal totalCount=0;
+        DateTime d = Date.Today() ;
+        String dateString =  d.format('dd/MM/yyyy') ;
         List<Mass_Upload_CSV__c> allSplitMassupload=[select ID,Name, Error_records__c,Success_records__c,Parent__c,Total_records__c,Status__c,Comments__c from Mass_Upload_CSV__c where Parent__c=:ParentId];
         for(Mass_Upload_CSV__c split:allSplitMassupload){
             totalCount= !String.isEmpty(String.valueof(split.Total_records__c))  ? split.Total_records__c :0;            
@@ -64,6 +66,15 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
             parentMassUpload.Comments__c=split.Comments__c; 
             }
         //parentMassUpload.Status__c='Completed';
+            
+                    
+             Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();                   
+             mail.setUseSignature(false);
+             mail.setToAddresses(new String[] { 'prashant.kumbhar@skinternational.com' });
+             mail.setSubject(massupload.File_Type__c+'Successfully process');
+             mail.setHtmlBody('Dear User,<br /><br />Your Records are Successfully processd<br /><br />Date: '+dateString+'<br /><br />No. of Success records: '+ parentMassUpload.Success_records__c+'<br /><br />Regards,<br/>UPL Salesforce Administrator<br />');
+           //mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attach1 }); 
+             Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
          update parentMassUpload; 
     }
 

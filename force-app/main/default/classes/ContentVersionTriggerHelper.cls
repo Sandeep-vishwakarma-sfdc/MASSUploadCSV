@@ -7,8 +7,8 @@
 **/
 public with sharing class ContentVersionTriggerHelper {
     
-    public Static boolean IsAttachmentupdated = true;
-    public static boolean triggerExecuted = false;
+    public Static boolean IsAttachmentupdated = false;
+    public static boolean massUploadTriggerExecuted = false;
     public ContentVersionTriggerHelper() {
         
     }
@@ -50,12 +50,11 @@ public with sharing class ContentVersionTriggerHelper {
             
             massUploadCSVs[0].isAttachment__c = true;
             massUploadCSVs[0].Status__c='Inprogress';
-            IsAttachmentupdated=false;
+            IsAttachmentupdated=true;
             System.debug('Checkbox True==>'+massUploadCSVs[0].isAttachment__c);
+            update massUploadCSVs;
         }
         
-        update massUploadCSVs;
-        triggerExecuted = true;
         
     }
     

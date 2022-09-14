@@ -1,11 +1,9 @@
 trigger ContentVersionTrigger on ContentVersion (after insert,after update) {
-    if ((trigger.isInsert || trigger.isupdate) && trigger.isafter && ContentVersionTriggerHelper.IsAttachmentupdated && ContentVersionTriggerHelper.triggerExecuted!=false){
+    if ((trigger.isInsert || trigger.isupdate) && trigger.isafter && ContentVersionTriggerHelper.IsAttachmentupdated==false){
+       
         ContentVersionTriggerHelper.updateMassUploadCSV(trigger.newmap);
      }
-   if(ContentVersionTriggerHelper.triggerExecuted){
-       
-       return; 
-    }
+    
     
     List<Id> contentDocIdList=new List<Id>();
     Map<Id,String> caseIdMap=new Map<Id,Id>(); 
@@ -50,4 +48,5 @@ trigger ContentVersionTrigger on ContentVersion (after insert,after update) {
     if(!cdlNewList.isEmpty()){
         insert cdlNewList;
     }
+    
 }

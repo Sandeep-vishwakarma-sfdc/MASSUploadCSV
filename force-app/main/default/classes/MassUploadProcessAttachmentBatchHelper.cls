@@ -134,9 +134,26 @@ public class MassUploadProcessAttachmentBatchHelper {
 	        catch(Exception e){
 				System.debug('Inside Exception log'+e);
 	            System.debug('Inside Exception log'+e.getMessage());
+                DateTime d = Date.Today() ;
+                String dateString =  d.format('dd/MM/yyyy') ;
 	            massupload.Comments__c=e.getMessage();
-	            massupload.Status__c='Completed';
+	            massupload.Status__c='Rejected';
 	            update massupload;
+                
+                Mass_Upload_CSV__c splitmassUploadCsv  = [select Id,Name,Status__c,Comments__c,Parent__c from Mass_Upload_CSV__c where Id=:massupload.Id];
+                String parentId = splitmassUploadCsv.Parent__c;
+                Mass_Upload_CSV__c   parentMassUpload= [select ID,Name,Status__c,Comments__c from Mass_Upload_CSV__c where id=:parentId];
+                parentMassUpload.Status__c='Rejected';
+                parentMassUpload.Comments__c=e.getMessage();
+                update parentMassUpload;
+                
+                Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();                   
+                mail.setUseSignature(false);
+                mail.setToAddresses(new String[] { 'prashant.kumbhar@skinternational.com' });
+                mail.setSubject(massupload.File_Type__c+' ' +'Could Not  process');
+                mail.setHtmlBody('Dear User,<br /><br />There was an error while uploading your records.<br /><br />Date: '+dateString+'<br /><br />Reason: '+ e.getMessage()+'<br /><br />Regards,<br/>UPL Salesforce Administrator<br />'); 
+                Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+                
 				System.abortJob(bc.getJobId());
 	        }
     }
@@ -155,17 +172,16 @@ public class MassUploadProcessAttachmentBatchHelper {
             if(!cr[i].isSuccess()){
 				 errorCount++;
                  massupload.Error_records__c= errorCount;
-                 Database.Error[] errors=cr[i].getErrors();   
+                 Database.Error[] errors=cr[i].getErrors(); 
+                 errList.add(cr[i].getErrors()+' ');
             }
             else{
             	successCount++;
    				massupload.Success_records__c=successCount;
+                successList.add(cr[i].getId()+' ');
             }                 
         }
-        for( integer i=0;i<cr.size();i++){
-        	errList.add(cr[i].getErrors()+' ');
-        	successList.add(cr[i].getId()+' ');
-        }
+        
         errorCSV =String.join(errList, massupload.Seperator__c+'\n');
 		successCSV = String.join(successList, massupload.Seperator__c+'\n');
 		Blob errBlob = Blob.valueof(errorCSV);
