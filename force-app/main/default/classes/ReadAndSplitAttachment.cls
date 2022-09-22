@@ -3,10 +3,13 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
     // private Map<String,ContentVersion> mapContentversion=new Map<String,ContentVersion>();
     private Map<Id,SObject> newItems = new Map<Id,SObject>();
     private Integer count = 0;
+    private static Id MassUploadSplitRecordTypeId;
    
     public ReadAndSplitAttachment(Map<Id,SObject> newItems){
         Map<Id,SObject> mapitems= new Map<Id,SObject>(); 
-        Id MassUploadSplitRecordTypeId = [SELECT Id, Name, DeveloperName, SobjectType, IsActive FROM RecordType where SobjectType='Mass_Upload_CSV__c' and Name='Original' limit 1].Id;
+        if(MassUploadSplitRecordTypeId==null){
+            MassUploadSplitRecordTypeId = [SELECT Id, Name, DeveloperName, SobjectType, IsActive FROM RecordType where SobjectType='Mass_Upload_CSV__c' and Name='Original' limit 1].Id;
+        }
         for(SObject n:newItems.values())
         { 
 			Mass_Upload_CSV__c massupload=(Mass_Upload_CSV__c) n;
@@ -30,7 +33,9 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
         
         if(newItems.values().size()>0){
         	Map<String,ContentVersion> mapContentversion = mapMassUploadToContentVersionData(newItems);
-        	divideCSV(this.newItems,mapContentversion);
+        	System.debug('newitem'+this.newItems);
+            System.debug('mapContentversion'+mapContentversion);
+            divideCSV(this.newItems,mapContentversion);
             
             List<String> parentIds=new List<String>();
             for(SObject item:newItems.values()){
@@ -40,8 +45,7 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
            List<String> contentVersionIds = getContentVersionIds(splitMassupload); 
            MassUploadProcessAttachmentBatch batchobj= new MassUploadProcessAttachmentBatch(contentVersionIds);
            Database.executeBatch(batchobj,1); 
-           
-            
+
         }
         
     }    
@@ -73,8 +77,8 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
         }
         return mapContentversion;
     }
-
-    private void divideCSV(Map<Id,SObject> newItems,Map<String,ContentVersion> mapContentversion){
+	 @TestVisible
+     private void divideCSV(Map<Id,SObject> newItems,Map<String,ContentVersion> mapContentversion){
         SplitString splitObj = new SplitString();
         Integer csvBodysize = 0;
         for(SObject item:newItems.values()){
@@ -125,17 +129,18 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
             }
         }
     }
-        
+    
     private void createSplitFile(SObject item,String csv,String header,Integer csvAttachment ){
         //System.debug('Create split count'+ this.count++);
         this.count++;
-        //System.debug('item data is'+ item);
-       // System.debug('divide csv  data is'+ csvAttachment);
+        System.debug('item data is'+ item);
+        System.debug('divide csv  data is'+ csvAttachment);
         Mass_Upload_CSV__c massupload =(Mass_Upload_CSV__c) item.clone();
         massupload.RecordTypeId = Schema.SObjectType.Mass_Upload_CSV__c.getRecordTypeInfosByName().get('Split').getRecordTypeId();
         massupload.Status__c='Inprogress';
         massupload.Parent__c=item.id;
         massupload.Name=massupload.Name+'-Split'+this.count;
+        System.debug('massuploadParent'+massupload.Parent__c);
         massupload.Total_records__c=csvAttachment-1;
         insert massupload;
         
@@ -154,7 +159,7 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
         cdl.ContentDocumentId = conDocId;
         Insert cdl;
     }
-    
+
     public List<String> getContentVersionIds(List<Mass_Upload_CSV__c> splitMassuploads){
        
         System.debug('splitMassupload '+splitMassuploads); 

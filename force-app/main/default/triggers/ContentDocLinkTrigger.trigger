@@ -1,11 +1,17 @@
 trigger ContentDocLinkTrigger on ContentDocumentLink (before insert,after insert) {
+    
+    public static List<contentdocument> contentdocuments=null;
+    public static List<contentversion> contentversions=null;
     Set<Id> contentdocIds = new Set<Id>();
     List<Id> contentDocId=new List<Id>();
     for(ContentDocumentLink con : Trigger.new){
         contentDocId.add(con.ContentDocumentId);
     }
+    system.debug('contentDocId==>'+contentDocId);
     Map<Id,String> cdTitleMap=new Map<Id,String>();
-    List<contentdocument> contentdocuments = [Select Id,Title from contentdocument where Id In :contentDocId];
+    if(contentdocuments==null || contentdocuments.size()==0){
+    	contentdocuments = [Select Id,Title from contentdocument where Id In :contentDocId];    
+    }
     for(ContentDocument con : contentdocuments){
         cdTitleMap.put(con.Id,con.Title);
     }
@@ -41,7 +47,10 @@ trigger ContentDocLinkTrigger on ContentDocumentLink (before insert,after insert
     }
     if(trigger.isInsert && trigger.isAfter){
         Map<Id,ContentVersion> contentdocverIdMap=new Map<Id,ContentVersion>();
-        for(ContentVersion cv:[Select Id,contentdocumentid,Guest_Record_fileupload__c from contentversion where contentdocumentid IN :contentDocId]){
+        if(contentversions==null){
+            contentversions = [Select Id,contentdocumentid,Guest_Record_fileupload__c from contentversion where contentdocumentid IN :contentDocId];
+        }
+        for(ContentVersion cv:contentversions){
             contentdocverIdMap.put(cv.contentdocumentid,cv);
         }
         List<Id> contentUpDocId=new List<Id>();

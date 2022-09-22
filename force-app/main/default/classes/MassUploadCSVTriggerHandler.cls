@@ -1,9 +1,11 @@
 public with sharing class MassUploadCSVTriggerHandler implements ITriggerHandler{
-    public Trigger_Settings__c triggerMetaData = new Trigger_Settings__c();
+    public static Trigger_Settings__c triggerMetaData;
 
     public MassUploadCSVTriggerHandler(){}
-    public MassUploadCSVTriggerHandler(String setttingName){
-    triggerMetaData = [select id,Name,ObjectName__c,IsActive__c from Trigger_Settings__c where Name=:setttingName];
+    public MassUploadCSVTriggerHandler(String settingName){
+        if(triggerMetaData==null){
+            triggerMetaData = [select id,Name,ObjectName__c,IsActive__c from Trigger_Settings__c where Name=:settingName];
+        }
    }
 
    public Boolean isDisabled(){
@@ -28,9 +30,13 @@ public with sharing class MassUploadCSVTriggerHandler implements ITriggerHandler
            if((massupload.Status__c=='Inprogress')&& massupload.recordTypeId == MassUploadRecordTypeId)
            {
                AsyncApexJob[] jobs = [SELECT Id, CreatedDate, CreatedById, JobType, ApexClassId, Status, JobItemsProcessed, TotalJobItems, NumberOfErrors, CompletedDate, MethodName, ExtendedStatus, ParentJobId, LastProcessed, LastProcessedOffset, CronTriggerId FROM AsyncApexJob where ApexClass.Name = 'ReadAndSplitAttachment' and Status='Processing'];
+               
                if(jobs.size()>0){
               	   item.addError('Job is already in a Queue');
+                 
+                   
                }else{
+                   
                    ID jobID = System.enqueueJob(new ReadAndSplitAttachment(newItems));
                }
               

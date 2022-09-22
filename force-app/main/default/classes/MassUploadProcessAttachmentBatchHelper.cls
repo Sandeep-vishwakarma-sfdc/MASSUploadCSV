@@ -186,27 +186,48 @@ public class MassUploadProcessAttachmentBatchHelper {
 		successCSV = String.join(successList, massupload.Seperator__c+'\n');
 		Blob errBlob = Blob.valueof(errorCSV);
         Blob succesBlob = Blob.valueof(successCSV);
-		ContentVersion errorcontent = new ContentVersion();
-		errorcontent.VersionData = errBlob;
-		errorcontent.Title='ErrorCsv';
+        
+        ContentVersion errorcontent = new ContentVersion();
+		if(errBlob.size() !=0 )
+        {
+        System.debug('errorBlob in if'+errBlob.size());
+        errorcontent.VersionData = errBlob;   
+        }
+        else
+        {
+         errorcontent.VersionData =Blob.valueOf('No Error');
+         System.debug('errorBlob in else'+errBlob.size());
+        
+        }
+        errorcontent.Title='ErrorCsv';
 		errorcontent.PathOnClient='ErrorCsv'+'.'+'csv';
 		errorcontent.IsMajorVersion=true;
 		insert errorcontent;
-			
+        Id errorConDocId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:errorcontent.Id].ContentDocumentId;
+         
+        ContentDocumentLink cdl = New ContentDocumentLink();
+        cdl.LinkedEntityId = massupload.id;
+        cdl.ContentDocumentId = errorConDocId;
+        Insert cdl;
+        
+        
         ContentVersion successcontent = new ContentVersion();
-		successcontent.VersionData = succesBlob;
+		if(succesBlob.size() !=0 )
+        {
+       		 successcontent.VersionData = succesBlob;
+        }
+        else
+        {
+            successcontent.VersionData=Blob.valueOf('No Success');
+        }
 		successcontent.Title='SuccessCsv';
 		successcontent.PathOnClient='SuccessCsv'+'.'+'csv';
 		successcontent.IsMajorVersion=true;
 		insert successcontent;
       
-        Id errorConDocId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:errorcontent.Id].ContentDocumentId;
         Id successConDocId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:successcontent.Id].ContentDocumentId;
           
-        ContentDocumentLink cdl = New ContentDocumentLink();
-        cdl.LinkedEntityId = massupload.id;
-        cdl.ContentDocumentId = errorConDocId;
-        Insert cdl;
+       
              
         ContentDocumentLink cdl1 = New ContentDocumentLink();
         cdl1.LinkedEntityId = massupload.id;

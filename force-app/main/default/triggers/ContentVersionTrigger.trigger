@@ -1,6 +1,8 @@
 trigger ContentVersionTrigger on ContentVersion (after insert,after update) {
-    if ((trigger.isInsert || trigger.isupdate) && trigger.isafter && ContentVersionTriggerHelper.IsAttachmentupdated==false){
-       
+    public static List<AggregateResult> c;
+    public static List<contentdocumentlink> contentdocumentlinks;
+    if ((trigger.isInsert || trigger.isupdate) && (trigger.isafter && ContentVersionTriggerHelper.IsAttachmentupdated==false)){
+       System.debug('Condition Satisfied');
         ContentVersionTriggerHelper.updateMassUploadCSV(trigger.newmap);
      }
     
@@ -15,7 +17,9 @@ trigger ContentVersionTrigger on ContentVersion (after insert,after update) {
     //System.debug('contentDocIdList==>'+contentDocIdList);
     //System.debug('caseIdMap==>'+caseIdMap);
     List<Integer> countList=new List<Integer>();
-    List<AggregateResult> c=[SELECT count(id)cnt from contentdocumentlink where contentdocumentid IN :contentDocIdList];
+    if(c==null || c.size()==0){
+        c=[SELECT count(id)cnt from contentdocumentlink where contentdocumentid IN :contentDocIdList];
+    }
     for(AggregateResult so:c){
         countList.add(Integer.valueOf(so.get('cnt')));
     }
@@ -26,7 +30,10 @@ trigger ContentVersionTrigger on ContentVersion (after insert,after update) {
     }
     System.debug('countMap==>'+countMap); 
     Map<Id,contentdocumentlink> cdlMap=new Map<Id,contentdocumentlink>();
-    for(contentdocumentlink cdl: [SELECT id, visibility, linkedentityid,contentdocumentid from contentdocumentlink where contentdocumentid IN :contentDocIdList]){
+    if(contentdocumentlinks==null){
+        contentdocumentlinks = [SELECT id, visibility, linkedentityid,contentdocumentid from contentdocumentlink where contentdocumentid IN :contentDocIdList];
+    }
+    for(contentdocumentlink cdl: contentdocumentlinks){
        system.debug('cdl==>'+cdl);
         if(!countMap.isEmpty() && countMap.containsKey(cdl.contentdocumentid) && (countMap.get(cdl.contentdocumentid)<2)){
             cdlMap.put(cdl.contentdocumentid,cdl);

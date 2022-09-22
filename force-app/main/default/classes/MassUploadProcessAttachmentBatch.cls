@@ -10,10 +10,11 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
         System.debug('Inside Start Method==>'+this.contentVersionIds);
         List<String> cvtemp = this.contentVersionIds;
         return Database.getQueryLocator('SELECT Id, VersionData,ContentDocumentId,Title FROM ContentVersion WHERE Id IN:cvtemp');
+        
     }
 
 	public void execute(Database.BatchableContext bc, List<ContentVersion> contentVersionData){
-        System.debug('Execute List==>'+contentVersionData);
+        System.debug('Execute List==>'+contentVersionData.size());
         try {
             if(contentVersionData.size()>0){
                 String contentVersionId=contentVersionData[0].id;
@@ -72,7 +73,7 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
              mail.setUseSignature(false);
              mail.setToAddresses(new String[] { 'prashant.kumbhar@skinternational.com' });
              mail.setSubject(massupload.File_Type__c+'Successfully process');
-             mail.setHtmlBody('Dear User,<br /><br />Your Records are Successfully processd<br /><br />Date: '+dateString+'<br /><br />No. of Success records: '+ parentMassUpload.Success_records__c+'<br /><br />Regards,<br/>UPL Salesforce Administrator<br />');
+             mail.setHtmlBody('Dear User,<br /><br />Your Records are Successfully processd<br /><br />Date: '+dateString+'<br /><br />No. of Total records: '+ parentMassUpload.Total_records__c+'<br /><br />No. of Success records: '+ parentMassUpload.Success_records__c+'<br /><br />No. of Error records: '+ parentMassUpload.Error_records__c+'<br /><br />Regards,<br/>UPL Salesforce Administrator<br />');
            //mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attach1 }); 
              Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
          update parentMassUpload; 

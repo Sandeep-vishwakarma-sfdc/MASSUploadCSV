@@ -1,7 +1,11 @@
 public with sharing class BatchGetCSVContent implements Database.Batchable<String>{
     String  folderName = 'folder1';//Default folder Name
-    public BatchGetCSVContent(String folderName){
+    String month = '';
+    String year = '';
+    public BatchGetCSVContent(String folderName,String month,String year){
         folderName = folderName;
+        this.month = month;
+        this.year = year;
     }
 
     public Iterable<String> start(Database.BatchableContext bc){

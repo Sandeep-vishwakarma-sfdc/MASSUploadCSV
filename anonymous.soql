@@ -70,8 +70,8 @@ bacth.csvContent(folderName,fileName);
 -----------------------------------------------------------------------------------------------
 
 String filname = 'SalesDeduction';
-String folderName = 'folder1'; // TODO : Dynamic folder i.e refrence folderName from this.folderName
-BatchGetCSVContent batch = new BatchGetCSVContent(folderName);
+String folderName = 'folder1'; // TODO : Dynamic folder i.e refrence folderName from this.
+BatchGetCSVContent batch = new BatchGetCSVContent(folderName,'','');
 String csvBody = batch.csvContent(folderName,filname);
 Blob content = Blob.valueOf(csvBody);
 Mass_Upload_CSV__c massupload = batch.createMassUpload('SalesDeduction'); //TODO: Dyanamic Type from fileName
