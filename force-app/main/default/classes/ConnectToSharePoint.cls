@@ -25,7 +25,9 @@ public with sharing class ConnectToSharePoint {
         List<GetSharePointFilesResponse.Results> results = filesDetails.d.results;
         for(GetSharePointFilesResponse.Results result:results){
             System.debug('FileName '+result.Name);
-            fileNames.add(result.Name);
+            if(result.Name.endsWith('.csv')){
+                fileNames.add(result.Name);
+            }
         }
         return fileNames;
     }

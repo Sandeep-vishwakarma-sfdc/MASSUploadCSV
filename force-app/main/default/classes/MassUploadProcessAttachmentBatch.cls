@@ -77,6 +77,14 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
            //mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attach1 }); 
              Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
          update parentMassUpload; 
+
+
+         Integration_Files__c integrationFile = [select id,Name,Folder_Name__c,Status__c from Integration_Files__c where Mass_Upload_CSV__c=:parentMassUpload.Id limit 1];
+         integrationFile.Status__c = 'Completed';
+         update integrationFile;
+         String folderName = integrationFile.Folder_Name__c;
+         BatchGetCSVContent batch = new BatchGetCSVContent(folderName);
+         Database.executeBatch(batch,1);
     }
 
 }

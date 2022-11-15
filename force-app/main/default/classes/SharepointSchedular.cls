@@ -1,17 +1,28 @@
 public with sharing class SharepointSchedular implements Schedulable {
-
     String folderName = '';
-    String month = '';
-    String year = '';
-    public SharepointSchedular(String folderName,String month,String year){
+    public SharepointSchedular(String folderName){
         this.folderName = folderName;
-        this.month = month;
-        this.year = year;
+    }
+    
+    public void execute(SchedulableContext sc) {
+        List<String> fileNames = new List<String>();
+        fileNames = ConnectToSharePoint.readFilesName(folderName);
+        createIntegrationFile(fileNames,folderName);// check for Duplicate
+        BatchGetCSVContent batch = new BatchGetCSVContent(this.folderName);
+        Database.executeBatch(batch,1);
     }
 
-
-    public void execute(SchedulableContext sc) {
-        BatchGetCSVContent batch = new BatchGetCSVContent(this.folderName,this.month,this.year);
-        Database.executeBatch(batch);
+    public void createIntegrationFile(List<String> fileNames,String folderName){
+        List<Integration_Files__c> integrationFiles = new List<Integration_Files__c>();
+        
+        for(String fileName :fileNames){
+            Integration_Files__c integrationFile = new Integration_Files__c();
+            integrationFile.File_Name__c = fileName;
+            integrationFile.Folder_Name__c = folderName;
+            integrationFile.Status__c = 'Draft';
+            integrationFiles.add(integrationFile);
+        }
+        insert integrationFiles;
+ 
     }
 }

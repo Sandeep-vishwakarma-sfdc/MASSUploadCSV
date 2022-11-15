@@ -69,12 +69,22 @@ BatchGetCSVContent bacth = new BatchGetCSVContent(folderName);
 bacth.csvContent(folderName,fileName);
 -----------------------------------------------------------------------------------------------
 
-String filname = 'SalesDeduction';
+String filname = 'file3.xlsx';
 String folderName = 'folder1'; // TODO : Dynamic folder i.e refrence folderName from this.
-BatchGetCSVContent batch = new BatchGetCSVContent(folderName,'','');
+BatchGetCSVContent batch = new BatchGetCSVContent(folderName);
 String csvBody = batch.csvContent(folderName,filname);
 Blob content = Blob.valueOf(csvBody);
 Mass_Upload_CSV__c massupload = batch.createMassUpload('SalesDeduction'); //TODO: Dyanamic Type from fileName
 batch.createFiles(massupload,content);
 
 ------------------------------------------------------------------------------------------
+
+Name file3.xlsx
+Name 8000_20220909063545_1.csv
+Name 8mb.csv
+Name file4.csv
+Name file2.csv
+Name CPI_Test.csv
+Name CSV test 1.csv
+Name 1.png
+Name file1.csv
