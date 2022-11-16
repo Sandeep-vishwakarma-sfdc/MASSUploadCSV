@@ -33,9 +33,7 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
         
         if(newItems.values().size()>0){
         	Map<String,ContentVersion> mapContentversion = mapMassUploadToContentVersionData(newItems);
-        	System.debug('newitem'+this.newItems);
-            System.debug('mapContentversion'+mapContentversion);
-            divideCSV(this.newItems,mapContentversion);
+        	divideCSV(this.newItems,mapContentversion);
             
             List<String> parentIds=new List<String>();
             for(SObject item:newItems.values()){
@@ -133,16 +131,16 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
     private void createSplitFile(SObject item,String csv,String header,Integer csvAttachment ){
         //System.debug('Create split count'+ this.count++);
         this.count++;
-        System.debug('item data is'+ item);
+        System.debug('item data is'+ item.id);
         System.debug('divide csv  data is'+ csvAttachment);
         Mass_Upload_CSV__c massupload =(Mass_Upload_CSV__c) item.clone();
         massupload.RecordTypeId = Schema.SObjectType.Mass_Upload_CSV__c.getRecordTypeInfosByName().get('Split').getRecordTypeId();
         massupload.Status__c='Inprogress';
         massupload.Parent__c=item.id;
         massupload.Name=massupload.Name+'-Split'+this.count;
-        System.debug('massuploadParent'+massupload.Parent__c);
         massupload.Total_records__c=csvAttachment-1;
         insert massupload;
+       
         
         List<ContentVersion> con=new List<ContentVersion>();                    
         ContentVersion content = new ContentVersion();

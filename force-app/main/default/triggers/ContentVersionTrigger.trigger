@@ -1,11 +1,13 @@
 trigger ContentVersionTrigger on ContentVersion (after insert,after update) {
+  
+    //--- Start--SKI(PrashantK) : #CR165: Margin Block Integration :28-09-2022
     public static List<AggregateResult> c;
     public static List<contentdocumentlink> contentdocumentlinks;
     if ((trigger.isInsert || trigger.isupdate) && (trigger.isafter && ContentVersionTriggerHelper.IsAttachmentupdated==false)){
        System.debug('Condition Satisfied');
         ContentVersionTriggerHelper.updateMassUploadCSV(trigger.newmap);
      }
-    
+    //--- End--SKI (PrashantK) :#CR165 :Margin Block Integration:28-09-2022
     
     List<Id> contentDocIdList=new List<Id>();
     Map<Id,String> caseIdMap=new Map<Id,Id>(); 

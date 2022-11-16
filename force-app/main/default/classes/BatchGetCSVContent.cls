@@ -78,7 +78,7 @@ public with sharing class BatchGetCSVContent implements Database.Batchable<Integ
         Insert cdl;
     }
 
-    public String getTypeFromFileName(String fileName){
+    public String getTypeFromFileName(String fileName){// covert FileName to type i.e (SalesDeduction_1 to SalesDeduction)
         List<String> fileNames = fileName.split('_');
         if(fileNames.size()>0){
             fileNames.remove(fileNames.size()-1);

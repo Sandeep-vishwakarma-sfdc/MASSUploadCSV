@@ -2,6 +2,7 @@ public class MassUploadProcessAttachmentBatchHelper {
 
 	public static Void createRecords(List<String> rows,Mass_Upload_CSV__c massupload,Database.BatchableContext bc){   
         try{
+            System.debug('row Size is'+rows.size());
 	        List<SObject> sObjects=new List<SObject>();
 	        String header = rows.remove(0);
 	        List<String> headers = header.split(massupload.Seperator__c);
@@ -54,12 +55,17 @@ public class MassUploadProcessAttachmentBatchHelper {
 	        String value='';
 	        String tempRecord='';
 			Map<String,Schema.SObjectType> globalDescribe = Schema.getGlobalDescribe();
-	        for(String lineItem: rows){
-	            obj= t.newSObject();
+
+			
+
+	        for(String lineItem: rows){ // LA0005	5100	Dc	Div	SKU Code	KG	11	0.58	30042022	31032023
+	            obj= t.newSObject(); // Creating Mass upload Object
 	            ObjectcombinationKeyValue = '';
 	            record = lineItem.split(massupload.Seperator__c); 
+                System.debug('recordsize is'+record.size());
 	            if(record.size()>1){
-	                for(Integer j=0;j<=csvFields.size()-1;j++){
+                    System.debug('recordsize is'+record.size());
+	                for(Integer j=0;j<=csvFields.size()-1;j++){ // loop on Columns
 	                if(ObjectcombinationKeyFields.contains(csvFields[j])){
 	                    value = record[j];
 	                    if(mapLeftpad.get(csvFields[j]) != null){
@@ -69,9 +75,9 @@ public class MassUploadProcessAttachmentBatchHelper {
 	                    }
 	                }
 	                if(csvFields[j].contains('__r')){
-	                	String sObjectTypeLookup = mapObjectName.get(csvFields[j]).ObjectName__c;
-	                    Schema.SObjectType schemaType = globalDescribe.get(sObjectTypeLookup);
-	                    SObject lookupObj = schemaType.newSObject();
+	                	String sObjectTypeLookup = mapObjectName.get(csvFields[j]).ObjectName__c; // SKU__C
+	                    Schema.SObjectType schemaType = globalDescribe.get(sObjectTypeLookup); 
+	                    SObject lookupObj = schemaType.newSObject(); // Object of SKU
 	                    String key='';
 	                    List<String> filedMapping = mapCombinationFields.get(csvFields[j]);
 	                    if(filedMapping.size()>=1){
@@ -81,7 +87,7 @@ public class MassUploadProcessAttachmentBatchHelper {
 								if(mapLeftpad.get(tempFields) != null){
 									tempRecord=record[csvFields.indexOf(tempFields)].leftPad(mapLeftpad.get(tempFields), '0');
 								}
-								key = key+tempRecord;
+								key = key+tempRecord;// SKU Combination Key
 								}
 	                    	}
 	                    }else{

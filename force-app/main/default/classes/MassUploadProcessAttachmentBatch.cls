@@ -76,15 +76,25 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
              mail.setHtmlBody('Dear User,<br /><br />Your Records are Successfully processd<br /><br />Date: '+dateString+'<br /><br />No. of Total records: '+ parentMassUpload.Total_records__c+'<br /><br />No. of Success records: '+ parentMassUpload.Success_records__c+'<br /><br />No. of Error records: '+ parentMassUpload.Error_records__c+'<br /><br />Regards,<br/>UPL Salesforce Administrator<br />');
            //mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attach1 }); 
              Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
-         update parentMassUpload; 
+             update parentMassUpload; 
 
-
-         Integration_Files__c integrationFile = [select id,Name,Folder_Name__c,Status__c from Integration_Files__c where Mass_Upload_CSV__c=:parentMassUpload.Id limit 1];
-         integrationFile.Status__c = 'Completed';
+         
+       List<Integration_Files__c> integrationFiles = [select id,Name,Folder_Name__c,Status__c from Integration_Files__c where Mass_Upload_CSV__c=:parentMassUpload.Id limit 1];
+        if(integrationFiles.size() >0 )
+        {
+         Integration_Files__c integrationFile=integrationFiles[0];
+         System.debug('integrationFile is'+integrationFile);   
+        integrationFile.Status__c = 'Completed';
          update integrationFile;
          String folderName = integrationFile.Folder_Name__c;
          BatchGetCSVContent batch = new BatchGetCSVContent(folderName);
          Database.executeBatch(batch,1);
+        }
+        else
+        {
+            System.debug('integrationFile is1'+integrationFiles);   
+         System.debug('Dont Update status');   
+        }
     }
 
 }

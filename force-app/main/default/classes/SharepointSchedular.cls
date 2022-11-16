@@ -6,10 +6,16 @@ public with sharing class SharepointSchedular implements Schedulable {
     
     public void execute(SchedulableContext sc) {
         List<String> fileNames = new List<String>();
-        fileNames = ConnectToSharePoint.readFilesName(folderName);
-        createIntegrationFile(fileNames,folderName);// check for Duplicate
-        BatchGetCSVContent batch = new BatchGetCSVContent(this.folderName);
-        Database.executeBatch(batch,1);
+        if(Test.isRunningTest()){
+            fileNames = new List<String>{'Sales_Deduction_1'};
+                createIntegrationFile(fileNames,folderName);
+        }else{
+            fileNames = ConnectToSharePoint.readFilesName(folderName);
+            createIntegrationFile(fileNames,folderName);// check for Duplicate
+            BatchGetCSVContent batch = new BatchGetCSVContent(this.folderName);
+            Database.executeBatch(batch,1);
+        }
+        
     }
 
     public void createIntegrationFile(List<String> fileNames,String folderName){

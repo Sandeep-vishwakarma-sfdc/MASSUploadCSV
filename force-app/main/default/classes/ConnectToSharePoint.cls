@@ -9,7 +9,13 @@ public with sharing class ConnectToSharePoint {
     public static List<String> readFilesName(String folderName){
         List<String> fileNames = new List<String>();
         SharePointDetails__c sharepointDetail = getSharePointdetails();
-        String accessToken = authentication();
+        String accessToken;
+        if(Test.isRunningTest()){
+            accessToken = 'access_token';
+        }else{
+            accessToken = authentication();
+        }
+        
         String authorizationHeader = 'Bearer '+accessToken;
         Http https = new Http();
         HttpRequest request = new HttpRequest();
@@ -32,13 +38,6 @@ public with sharing class ConnectToSharePoint {
         return fileNames;
     }
 
-    private static void fetchCSVContent(){
-
-    }
-
-    private static void createMassCSVOriginalFile(){
-
-    }
 
     public static AccessTokenResponse getSharePointAccessToken(){
         SharePointDetails__c sharepointDetail = getSharePointdetails();
