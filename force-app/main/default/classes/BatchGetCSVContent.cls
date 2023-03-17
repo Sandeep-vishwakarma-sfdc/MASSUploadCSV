@@ -1,3 +1,9 @@
+/*******************************************************************************************
+* @Name         BatchGetCSVContent
+* @Author       Sandeep Vishwakarma <sandeep.vishwakarma@skinternational.com>
+* @Group        SKI
+* @Description  This class takes foldername from SharePointSchedular and Create  Mass upload Records (Record type: Original) and assign Files to mass upload records
+*******************************************************************************************/
 public with sharing class BatchGetCSVContent implements Database.Batchable<Integration_Files__c>,Database.AllowsCallouts{
     String  folderName = 'folder1';//Default folder Name
     public BatchGetCSVContent(String folderName){
@@ -78,15 +84,56 @@ public with sharing class BatchGetCSVContent implements Database.Batchable<Integ
         Insert cdl;
     }
 
-    public String getTypeFromFileName(String fileName){// covert FileName to type i.e (SalesDeduction_1 to SalesDeduction)
-        List<String> fileNames = fileName.split('_');
-        if(fileNames.size()>0){
+    public String getTypeFromFileName(String fileName){
+        /* List<String> fileNames = fileName.split('_');
+        if(fileNames.size()>0){// Logic to covert FileName to type i.e (SalesDeduction_1 to SalesDeduction)
             fileNames.remove(fileNames.size()-1);
             String type = String.join(fileNames,'');
             return type;
         }else{
             return fileName;
-        }
+        } */
+
+        // Logic to convert Additional_Discount_1_20230227081442 to Additional_Discount
+        // String fileName = 'Additional_Discount_1_20230227081442';
+        List<String> words = fileName.split('_');
+        words.remove(words.size() - 1);
+        words.remove(words.size() - 1);
+        fileName = String.join(words,'_');
+        System.debug('fileName '+fileName);
+        Map<String,String> mapFileTypes = new Map<String,String>();
+       
+        mapFileTypes.put('Sales_Deduction','SalesDeduction');
+        mapFileTypes.put('E2E_Cost','E2ECost');
+        mapFileTypes.put('E2E_UPC9','E2ECostUPC9');
+        mapFileTypes.put('E2E_MBEW','E2ECostMBEW');
+        mapFileTypes.put('Rebate','Rebate');
+        mapFileTypes.put('Rebate_Customer','RebateCustomer');
+        mapFileTypes.put('Discount','Discount');
+        mapFileTypes.put('Additional_Discount','AdditionalDiscount');
+        mapFileTypes.put('PLN','PLN');
+        mapFileTypes.put('PLN_Customer','PLNCustomer');
+
+        return mapFileTypes.get(fileName);// return type of record
     }
 
 }
+
+
+
+// Sales_Deduction
+// E2E_Cost
+// E2E_UPC9
+// E2E_MBEW
+// Rebate
+// Rebate_Customer
+// Discount
+// Additional_Discount
+// PLN
+// PLN_Customer
+// Exchange_Rate
+
+// Additional_Discount_1_20230227081442
+// PLN_1_20230227081518
+// Additional_Discount
+// PLN

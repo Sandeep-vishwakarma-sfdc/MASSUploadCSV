@@ -88,3 +88,41 @@ Name CPI_Test.csv
 Name CSV test 1.csv
 Name 1.png
 Name file1.csv
+
+
+
+DateTime startDateTime = DateTime.now();
+Date endToday = Date.today().addDays(30);
+Time t1 = startDateTime.time();
+DateTime endDateTime = DateTime.newInstance(endToday,t1);
+String startDateEndDate = startDateTime.format('DDMMYYYY')+';'+endDateTime.format('DDMMYYYY');
+System.debug('startDateEndDate '+startDateEndDate);
+
+String todayString = String.valueOf(Date.today().day()).leftPad(2, '0') + 
+                     String.valueOf(Date.today().month()).leftPad(2, '0') + 
+                     String.valueOf(Date.today().year());
+System.debug('todayString '+todayString);
+
+
+String todayString = String.valueOf(Date.today().day()).leftPad(2, '0') + 
+                     String.valueOf(Date.today().month()).leftPad(2, '0') + 
+                     String.valueOf(Date.today().year());
+
+
+// Get the current date
+Date currentDate = Date.today();
+
+// Add 30 days to the current date
+Date next30thDay = currentDate.addDays(30);
+
+// Format the next 30th day as a string in the "DDMMYYYY" format
+String next30thDayString = String.valueOf(next30thDay.day()).leftPad(2, '0') + 
+                           String.valueOf(next30thDay.month()).leftPad(2, '0') + 
+                           String.valueOf(next30thDay.year());
+
+system.debug('next30thDayString '+next30thDayString);
+
+
+
+SharepointSchedular sp = new SharepointSchedular('folder1');
+sp.execute(null);

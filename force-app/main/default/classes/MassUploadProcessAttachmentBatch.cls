@@ -29,16 +29,16 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
                 SplitString splitObj = new SplitString();
                 String fileTypeName=massupload.File_Type__c.deleteWhitespace();
                 if(contentvar.Title.contains(fileTypeName)){
-                   list<String> csvFileds=massupload.CSV_fields__c.split(';');
+                //    list<String> csvFileds=massupload.CSV_fields__c.split(';');
                    List<String> csvbody=splitObj.safeSplit(contentvar.VersionData.toString(), '\n');
                    MassUploadProcessAttachmentBatchHelper.createRecords(csvbody,massupload,bc);
                }
             }
         } catch (Exception e) {
-            massupload.Comments__c=e.getMessage();
+            massupload.Comments__c=e.getMessage()+' '+e.getLineNumber();
             massupload.Status__c='Completed';
 	        update massupload;
-            System.abortJob(bc.getJobId());
+            // System.abortJob(bc.getJobId());
         }
     }
 
@@ -71,7 +71,7 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
                     
              Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();                   
              mail.setUseSignature(false);
-             mail.setToAddresses(new String[] { 'prashant.kumbhar@skinternational.com' });
+             mail.setToAddresses(new String[] { 'sandeep.vishwakarma@skinternational.com' });
              mail.setSubject(massupload.File_Type__c+'Successfully process');
              mail.setHtmlBody('Dear User,<br /><br />Your Records are Successfully processd<br /><br />Date: '+dateString+'<br /><br />No. of Total records: '+ parentMassUpload.Total_records__c+'<br /><br />No. of Success records: '+ parentMassUpload.Success_records__c+'<br /><br />No. of Error records: '+ parentMassUpload.Error_records__c+'<br /><br />Regards,<br/>UPL Salesforce Administrator<br />');
            //mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attach1 }); 

@@ -1,6 +1,6 @@
 trigger ContentDocLinkTrigger on ContentDocumentLink (before insert,after insert) {
     
-    public static List<contentdocument> contentdocuments=null;//---SKI (PrashantK) : #CR165 : Margin Block Integration :28-09-2022
+    public static List<contentdocument> contentdocuments=ContentVersionTriggerHelper.contentdocuments;//---SKI (PrashantK) : #CR165 : Margin Block Integration :28-09-2022
     
     public static List<contentversion> contentversions=null;//---SKI (PrashantK) : #CR165 : Margin Block Integration :28-09-2022
     Set<Id> contentdocIds = new Set<Id>();
@@ -9,9 +9,11 @@ trigger ContentDocLinkTrigger on ContentDocumentLink (before insert,after insert
         contentDocId.add(con.ContentDocumentId);
     }
     system.debug('contentDocId==>'+contentDocId);
+    system.debug('contentdocuments ==>'+contentdocuments);
     Map<Id,String> cdTitleMap=new Map<Id,String>();
-    if(contentdocuments==null || contentdocuments.size()==0){ //---SKI (PrashantK) : #CR165 : Margin Block Integration :28-09-2022
-    	contentdocuments = [Select Id,Title from contentdocument where Id In :contentDocId];    
+    if(ContentVersionTriggerHelper.contentdocuments==null || ContentVersionTriggerHelper.contentdocuments.size()==0){ //---SKI (PrashantK) : #CR165 : Margin Block Integration :28-09-2022
+    	contentdocuments = [Select Id,Title from contentdocument where Id In :contentDocId];   
+        ContentVersionTriggerHelper.contentdocuments = contentdocuments; 
     }
     for(ContentDocument con : contentdocuments){
         cdTitleMap.put(con.Id,con.Title);

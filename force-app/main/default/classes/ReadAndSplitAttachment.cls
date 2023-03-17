@@ -10,8 +10,7 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
         if(MassUploadSplitRecordTypeId==null){
             MassUploadSplitRecordTypeId = [SELECT Id, Name, DeveloperName, SobjectType, IsActive FROM RecordType where SobjectType='Mass_Upload_CSV__c' and Name='Original' limit 1].Id;
         }
-        for(SObject n:newItems.values())
-        { 
+        for(SObject n:newItems.values()){ 
 			Mass_Upload_CSV__c massupload=(Mass_Upload_CSV__c) n;
             System.debug('Record Type '+massupload.RecordTypeId +' ' +MassUploadSplitRecordTypeId+ ' isAttach '+massupload.isAttachment__c);
             if(massupload.isAttachment__c==true && massupload.recordTypeId == MassUploadSplitRecordTypeId && (massupload.Status__c=='Inprogress'))
@@ -86,11 +85,11 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
             Integer divideCsv = 0;
             csvBodysize = csvbody.size();
             System.debug('csvBodysize'+csvBodysize);
-            if(csvBodysize<=4000){
+            if(csvBodysize<=1000){
                 divideCsv = csvBodysize;
                 System.debug('Divinding File into 1 parts');
             }else{
-                Double noOfFiles = csvBodysize/7000;
+                Double noOfFiles = csvBodysize/3000;
                 divideCsv = csvBodysize/Integer.valueOf(Math.Floor(noOfFiles));
             }
             

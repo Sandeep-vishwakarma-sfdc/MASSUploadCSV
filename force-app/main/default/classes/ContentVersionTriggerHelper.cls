@@ -13,6 +13,9 @@ public with sharing class ContentVersionTriggerHelper {
     public static List<contentversion> contentvarid=null;
     public static Integer count=1;
     public static List<ContentDocumentLink> contentDocumentsLink=null;
+    public static List<contentdocument> contentdocuments = null;// Added by Sandeep 11-18-2022
+    public static List<AggregateResult> c = null; // Added by Sandeep Vishwakarama 11-18-2022
+    public static List<contentversion> contentversions=null; // Added by Sandeep Vishwakarama
     public ContentVersionTriggerHelper() {
         
     }
