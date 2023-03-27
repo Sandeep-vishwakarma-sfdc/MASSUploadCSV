@@ -107,11 +107,16 @@ public class MassUploadProcessAttachmentBatchHelper {
 				List<String> columns = lineItem.split(';',3);
 				System.debug('Columns '+columns);
 				String skucode = null;
+				System.debug('salesAreasConfigs '+salesAreasConfigs);
+				if(salesAreasConfigs != null){
 				for(Sales_Area_Configuration__c config:salesAreasConfigs){
 					depotCombination = config.Sales_Org__r.Sales_Org_Code__c+';'+ config.Distribution_Channel__r.Distribution_Channel_Code__c+';'+ config.Division__r.Division_Code__c+';';
 					skucode = depotCombination.remove(';') + record[settings.indexOf('SKU_Code__r')].leftPad(18,'0');
 					System.debug('skucode 1 '+skucode);
 					skuCodes.add(skucode);
+				}
+				}else{
+					System.debug('Sales_Area_Configuration__c Mapping Not Present');
 				}
 			}
 
@@ -139,6 +144,7 @@ public class MassUploadProcessAttachmentBatchHelper {
 				String skucode = null;
 				
 				String startDateEndDate = todayString+';'+next30thDayString;
+				if(salesAreasConfigs != null){
 				for(Sales_Area_Configuration__c config:salesAreasConfigs){
 					depotCombination = config.Sales_Org__r.Sales_Org_Code__c+';'+ config.Distribution_Channel__r.Distribution_Channel_Code__c+';'+ config.Division__r.Division_Code__c+';';
 					skucode = depotCombination.remove(';') + record[settings.indexOf('SKU_Code__r')].leftPad(18,'0');
@@ -155,6 +161,7 @@ public class MassUploadProcessAttachmentBatchHelper {
 						}
 						rowsWithSalesAreaConfig.add(lineItem);
 					}
+				}
 				}
 			}
 			/*End */

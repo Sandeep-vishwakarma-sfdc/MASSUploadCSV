@@ -4,7 +4,7 @@ public with sharing class MassCSVReprocessLWC {
     
       SharepointSchedular sc = new SharepointSchedular(folderName);
      // system.schedule('Schedule MassCSVProcess', null, sc);
-     sc.execute(null);
+     sc.run();
       
   }
 

@@ -125,4 +125,4 @@ system.debug('next30thDayString '+next30thDayString);
 
 
 SharepointSchedular sp = new SharepointSchedular('folder1');
-sp.execute(null);
+sp.run();

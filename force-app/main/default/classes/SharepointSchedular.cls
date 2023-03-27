@@ -5,6 +5,10 @@ public with sharing class SharepointSchedular implements Schedulable {
     }
     
     public void execute(SchedulableContext sc) {
+        run();
+    }
+
+    public void run(){
         List<String> fileNames = new List<String>();
         if(Test.isRunningTest()){
             fileNames = new List<String>{'Sales_Deduction_1'};
@@ -15,7 +19,6 @@ public with sharing class SharepointSchedular implements Schedulable {
             BatchGetCSVContent batch = new BatchGetCSVContent(this.folderName);
             Database.executeBatch(batch,1);
         }
-        
     }
 
     public void createIntegrationFile(List<String> fileNames,String folderName){

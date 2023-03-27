@@ -55,7 +55,7 @@ public with sharing class BatchGetCSVContent implements Database.Batchable<Integ
 
         Mass_Upload_CSV__c massupload = new Mass_Upload_CSV__c();
         massupload.Name = type;
-        massupload.CSV_fields__c = massUploadExternalIdRecords.CSVFields__c;
+        // massupload.CSV_fields__c = massUploadExternalIdRecords.CSVFields__c;
         massupload.File_Name__c = type;
         massupload.File_Type__c = type;
         massupload.Mode__c = 'Auto';
@@ -97,6 +97,7 @@ public with sharing class BatchGetCSVContent implements Database.Batchable<Integ
         // Logic to convert Additional_Discount_1_20230227081442 to Additional_Discount
         // String fileName = 'Additional_Discount_1_20230227081442';
         List<String> words = fileName.split('_');
+        System.debug('Words '+words);
         words.remove(words.size() - 1);
         words.remove(words.size() - 1);
         fileName = String.join(words,'_');
