@@ -1,4 +1,5 @@
 public class MassUploadProcessAttachmentBatchHelper {
+	public static List<String>  errList = new List<String>();
 
 	public static Void createRecords(List<String> rows,Mass_Upload_CSV__c massupload,Database.BatchableContext bc){   
         try{
@@ -117,6 +118,7 @@ public class MassUploadProcessAttachmentBatchHelper {
 				}
 				}else{
 					System.debug('Sales_Area_Configuration__c Mapping Not Present');
+					errList.add(columns+ 'Sales_Area_Configuration__c Mapping Not Present');
 				}
 			}
 
@@ -285,7 +287,7 @@ public class MassUploadProcessAttachmentBatchHelper {
                 
                 Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();                   
                 mail.setUseSignature(false);
-                mail.setToAddresses(new String[] { 'sandeep.vishwakarma@skinternational.com' });
+                mail.setToAddresses(new String[] { Mass_upload_Emails__c.getValues('MarginBlockEmails').email__c });
                 mail.setSubject(massupload.File_Type__c+' ' +'Could Not  process');
                 mail.setHtmlBody('Dear User,<br /><br />There was an error while uploading your records.<br /><br />Date: '+dateString+'<br /><br />Reason: '+ e.getMessage()+'<br /><br />Regards,<br/>UPL Salesforce Administrator<br />'); 
                 Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
@@ -300,7 +302,7 @@ public class MassUploadProcessAttachmentBatchHelper {
         String errorCSV = '';
         Integer errorCount=0;
         Integer successCount=0;
-		List<String> errList = new List<String>();
+		
         List<String> successList = new List<String>();
         
         for( integer i=0;i<cr.size();i++)

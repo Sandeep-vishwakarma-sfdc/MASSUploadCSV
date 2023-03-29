@@ -119,22 +119,3 @@ public with sharing class BatchGetCSVContent implements Database.Batchable<Integ
     }
 
 }
-
-
-
-// Sales_Deduction
-// E2E_Cost
-// E2E_UPC9
-// E2E_MBEW
-// Rebate
-// Rebate_Customer
-// Discount
-// Additional_Discount
-// PLN
-// PLN_Customer
-// Exchange_Rate
-
-// Additional_Discount_1_20230227081442
-// PLN_1_20230227081518
-// Additional_Discount
-// PLN

@@ -71,7 +71,7 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
                     
              Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();                   
              mail.setUseSignature(false);
-             mail.setToAddresses(new String[] { 'sandeep.vishwakarma@skinternational.com' });
+             mail.setToAddresses(new String[] { Mass_upload_Emails__c.getValues('MarginBlockEmails').email__c });
              mail.setSubject(massupload.File_Type__c+'Successfully process');
              mail.setHtmlBody('Dear User,<br /><br />Your Records are Successfully processd<br /><br />Date: '+dateString+'<br /><br />No. of Total records: '+ parentMassUpload.Total_records__c+'<br /><br />No. of Success records: '+ parentMassUpload.Success_records__c+'<br /><br />No. of Error records: '+ parentMassUpload.Error_records__c+'<br /><br />Regards,<br/>UPL Salesforce Administrator<br />');
            //mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attach1 }); 
