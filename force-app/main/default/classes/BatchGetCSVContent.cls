@@ -2,19 +2,37 @@
 * @Name         BatchGetCSVContent
 * @Author       Sandeep Vishwakarma <sandeep.vishwakarma@skinternational.com>
 * @Group        SKI
-* @Description  This class takes foldername from SharePointSchedular and Create  Mass upload Records (Record type: Original) and assign Files to mass upload records
+* @Description  This class takes foldername from SharePointSchedular and Create  Mass upload Records (Record type: Original) and assign Files to mass upload records you can see it in related list files.
 *******************************************************************************************/
 public with sharing class BatchGetCSVContent implements Database.Batchable<Integration_Files__c>,Database.AllowsCallouts{
     String  folderName = 'folder1';//Default folder Name
+
+    /**
+     * This is a constructor which take folder name as a input.
+     * @param folderName The first String.
+     * @return No return
+    */
     public BatchGetCSVContent(String folderName){
         folderName = folderName;
     }
 
+    /**
+     * This is a Start method of batchable class. It bring the Integration Files which are in Draft stage.
+     * @param bc The first paramter of type Database.BatchableContext.
+     * @return It returns Iterable<Integration_Files__c>.
+    */
     public Iterable<Integration_Files__c> start(Database.BatchableContext bc){
         List<Integration_Files__c> integrationFiles = [select Id,Name,Status__c,File_Name__c from Integration_Files__c where Folder_Name__c=:this.folderName and Status__c='Draft' limit 1];
         return integrationFiles;
     }
   
+    /**
+     * This is a execute method of batchable class. It process the list of Integration files coming from start method.
+     * It is used to create mass upload record of record type original by calling method createMassUpload.
+     * @param bc The first paramter of type Database.BatchableContext.
+     * @param integrationFiles The second paramter of type List<Integration_Files__c>.
+     * @return It returns Iterable<Integration_Files__c>.
+    */
     public void execute(Database.BatchableContext bc, List<Integration_Files__c> integrationFiles){
         String filname = integrationFiles[0].File_Name__c; 
         String csvBody = csvContent(this.folderName,filname);
@@ -25,10 +43,21 @@ public with sharing class BatchGetCSVContent implements Database.Batchable<Integ
 
     }
   
+    /**
+     * This is a finish method It will run once all the mass upload record (i.e of type original) and their repective file content is created 
+     * @param bc The first paramter of type Database.BatchableContext.
+     * @return void
+    */  
     public void finish(Database.BatchableContext bc){
         System.debug('Batch Complete');
     }
 
+    /**
+     * This is csvContent method used to bring content of fileName provided as input from folderName provided as input which is stored on Microsoft sharepoint.
+     * @param folderName The first paramter String.
+     * @param fileName The Second paramter String .
+     * @return It returns csv file content in string type. 
+    */
     public String csvContent(String folderName,String fileName){
         String accessToken = ConnectToSharePoint.authentication();
         SharePointDetails__c sharepointDetail = ConnectToSharePoint.getSharePointdetails();
@@ -42,11 +71,16 @@ public with sharing class BatchGetCSVContent implements Database.Batchable<Integ
         request.setHeader('Authorization',authorizationHeader);
         httpResponse response = https.send(request);
         System.debug('Body Files'+response.getbody());
-        String csvbody = response.getbody(); //TODO: Reponse from API
-        //String csvbody = 'Profit Center,Sales Org,Dc,Div,SKU Code,UOM ,Sales Deduction LC,Sales Deduction USD,Start Date, End Date \nLA0005,5100,20,10,000000000000856010,KG,11,0.58,30042022,31032023\nLA0005,5100,20,10,000000000000856083,KG,12,0.68,30042022,31032023\nLA0005,5100,20,10,000000000000854052,KG,13,1,30042022,31032023\nLA0005,5100,20,60,000000000000854053,KG,14,1,30042022,31032023\nLA0005,5100,20,60,000000000000720502,KG,15,12,30042022,31032023';
+        String csvbody = response.getbody();
         return csvbody;
     }
 
+    /**
+     * createMassUpload method used to create mass upload record (Mass_Upload_CSV__c) of record type Original and status will be Draft.
+     * @param type The first paramter String.
+     * @param integrationFiles The Second paramter Integration_Files__c .
+     * @return It returns created mass upload record (Mass_Upload_CSV__c )
+    */
     public  Mass_Upload_CSV__c createMassUpload(String type,Integration_Files__c integrationFiles){
         type = getTypeFromFileName(type);
         System.debug('Type '+type);
@@ -69,6 +103,12 @@ public with sharing class BatchGetCSVContent implements Database.Batchable<Integ
         update integrationFiles;
         return massupload;
     }
+    /**
+     * createFiles method is use to Create File for provided mass upload record with the provided content
+     * @param massupload The first paramter Mass_Upload_CSV__c.
+     * @param content The Second paramter Blob.
+     * @return void
+    */
     public  void createFiles(Mass_Upload_CSV__c massupload,Blob content){    
         ContentVersion contentV = new ContentVersion();
         contentV.VersionData=content;
@@ -84,18 +124,12 @@ public with sharing class BatchGetCSVContent implements Database.Batchable<Integ
         Insert cdl;
     }
 
+    /**
+     * getTypeFromFileName method used to get Type of file (i.e SalesDeduction,E2ECost etc)
+     * @param fileName The first paramter String.
+     * @return It returns type of file
+    */
     public String getTypeFromFileName(String fileName){
-        /* List<String> fileNames = fileName.split('_');
-        if(fileNames.size()>0){// Logic to covert FileName to type i.e (SalesDeduction_1 to SalesDeduction)
-            fileNames.remove(fileNames.size()-1);
-            String type = String.join(fileNames,'');
-            return type;
-        }else{
-            return fileName;
-        } */
-
-        // Logic to convert Additional_Discount_1_20230227081442 to Additional_Discount
-        // String fileName = 'Additional_Discount_1_20230227081442';
         List<String> words = fileName.split('_');
         System.debug('Words '+words);
         words.remove(words.size() - 1);

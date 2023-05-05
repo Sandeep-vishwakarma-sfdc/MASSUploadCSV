@@ -1,11 +1,20 @@
 public with sharing class ConnectToSharePoint {
 
+    /**
+     * authentication method use to get access token from sharepoint.
+     * @return return access token from 
+    */
     public static String authentication(){
         AccessTokenResponse accessTokenObj = getSharePointAccessToken();
         String accessToken = accessTokenObj.access_token;
         return accessToken;
     }
 
+    /**
+     * readFilesName method to read all the names of file placed in the provided folder name.
+     * @param folderName The first String.
+     * @return No return
+    */
     public static List<String> readFilesName(String folderName){
         List<String> fileNames = new List<String>();
         SharePointDetails__c sharepointDetail = getSharePointdetails();
@@ -38,7 +47,10 @@ public with sharing class ConnectToSharePoint {
         return fileNames;
     }
 
-
+    /**
+     * getSharePointAccessToken method to get access token of sharepoint.
+     * @return returns AccessTokenResponse
+    */
     public static AccessTokenResponse getSharePointAccessToken(){
         SharePointDetails__c sharepointDetail = getSharePointdetails();
         Http https = new Http();
@@ -57,6 +69,10 @@ public with sharing class ConnectToSharePoint {
         return accessToken;
 	}
 
+    /**
+     * getSharePointdetails method to get share point details store under SharePointDetails__c Custom Setting.
+     * @return returns AccessTokenResponse
+    */
     public static SharePointDetails__c getSharePointdetails(){
         SharePointDetails__c sharepointDetail = [select id,AuthorizationURL__c,Client_Id__c,Client_Secret__c,Get_CSV_File_URL__c,Get_Files_URL__c,Grant_Type__c,Resource__c from SharePointDetails__c where Name='MarginBlockCLI' limit 1];
         return sharepointDetail;

@@ -5,6 +5,11 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
     private Integer count = 0;
     private static Id MassUploadSplitRecordTypeId;
    
+    /**
+     * ReadAndSplitAttachment is a constructor which takes Map<Id,SObject> as input and brings  Mass_Upload_CSV__c records of record type original and is Attachement is true.
+     * @param newItems The first parameter Map<Id,SObject>.
+     * @return void
+    */
     public ReadAndSplitAttachment(Map<Id,SObject> newItems){
         Map<Id,SObject> mapitems= new Map<Id,SObject>(); 
         if(MassUploadSplitRecordTypeId==null){
@@ -28,6 +33,11 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
         }
     }
    
+    /**
+     * execute method split the original file and call MassUploadProcessAttachmentBatch batch to process the records
+     * @param context The first parameter QueueableContext.
+     * @return void
+    */
     public void execute(QueueableContext context) {
         
         if(newItems.values().size()>0){
@@ -47,6 +57,11 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
         
     }    
 
+    /**
+     * mapMassUploadToContentVersionData used to map csv chunk body to respective spli mass upload record
+     * @param context The first parameter QueueableContext.
+     * @return void
+    */
     private Map<String,ContentVersion> mapMassUploadToContentVersionData(Map<Id,SObject> newItems){
         Map<String,ContentVersion> mapContentversion=new Map<String,ContentVersion>();
         System.debug('Item updated '+newItems);
@@ -74,6 +89,13 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
         }
         return mapContentversion;
     }
+
+    /**
+     * divideCSV method use to divide the original csv file based on its size and call createSplitFile method to Create a chunk of files.
+     * @param newItems The first parameter QueueableContext.
+     * @param mapContentversion The seciond paramter Map<String,ContentVersion>
+     * @return void
+    */
 	 @TestVisible
      private void divideCSV(Map<Id,SObject> newItems,Map<String,ContentVersion> mapContentversion){
         SplitString splitObj = new SplitString();
@@ -89,7 +111,10 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
                 divideCsv = csvBodysize;
                 System.debug('Divinding File into 1 parts');
             }else{
-                Double noOfFiles = csvBodysize/3000;
+                Double noOfFiles = csvBodysize/3000;//Noted///
+                if(Math.Floor(noOfFiles)==0){
+                    noOfFiles = csvBodysize/csvBodysize;
+                }
                 divideCsv = csvBodysize/Integer.valueOf(Math.Floor(noOfFiles));
             }
             
@@ -127,6 +152,14 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
         }
     }
     
+    /**
+     * createSplitFile use to create split files
+     * @param item The first parameter SObject (i.e Record).
+     * @param csv The second paramter String
+     * @param header The Third paramter String
+     * @param csvAttachment The Fourth paramter Integer (i.e No. of total records in each split)
+     * @return void
+    */
     private void createSplitFile(SObject item,String csv,String header,Integer csvAttachment ){
         //System.debug('Create split count'+ this.count++);
         this.count++;
@@ -157,6 +190,11 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
         Insert cdl;
     }
 
+    /**
+     * getContentVersionIds method use bring content version Id form split mass upload record
+     * @param splitMassuploads The first parameter List<Mass_Upload_CSV__c>.
+     * @return List<String> i.e Id's of content versions
+    */
     public List<String> getContentVersionIds(List<Mass_Upload_CSV__c> splitMassuploads){
        
         System.debug('splitMassupload '+splitMassuploads); 

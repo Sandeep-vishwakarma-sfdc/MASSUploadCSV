@@ -2,10 +2,20 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
 	public List<String> contentVersionIds;
 	public Mass_Upload_CSV__c massupload;
 
+     /**
+     * MassUploadProcessAttachmentBatch is a constructor which accepts input as List<String> of content version id
+     * @param contentVersionIds The first parameter List<String>.
+     * @return No return
+    */
 	public MassUploadProcessAttachmentBatch(List<String> contentVersionIds) {
 		this.contentVersionIds = contentVersionIds;
 	}
-
+    
+    /**
+     * Start method use to bring data of contentVesrion from the provided contentVersionId
+     * @param Database.BatchableContext The first parameter Database.BatchableContext.
+     * @return returns Database.QueryLocator
+    */
 	public Database.QueryLocator start(Database.BatchableContext bc){
         System.debug('Inside Start Method==>'+this.contentVersionIds);
         List<String> cvtemp = this.contentVersionIds;
@@ -13,6 +23,12 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
         
     }
 
+    /**
+     * execute method use to create mass upload record (of record type Split) from the provided data (execute method is invokeed by start method and passed contentVersionData)
+     * @param Database.BatchableContext The first parameter Database.BatchableContext.
+     * @param contentVersionData The Second parameter List<ContentVersion>.
+     * @return void
+    */
 	public void execute(Database.BatchableContext bc, List<ContentVersion> contentVersionData){
         System.debug('Execute List==>'+contentVersionData.size());
         try {
@@ -42,6 +58,12 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
         }
     }
 
+    /**
+     * finish method count number of success and number of error and update status to completed.
+     * Sends an email to the user specfied in custom setting Mass_upload_Emails__c Where Name is MarginBlockEmails
+     * @param Database.BatchableContext The first parameter Database.BatchableContext.
+     * @return Void
+    */
 	public void finish(Database.BatchableContext bc){
         System.debug('Inside Finish Method');  
         Mass_Upload_CSV__c splitmassUploadCsv  = [select Id,Name,Parent__c,Error_records__c,Success_records__c,Total_records__c,Status__c,Comments__c from Mass_Upload_CSV__c where Id=:massupload.Id];

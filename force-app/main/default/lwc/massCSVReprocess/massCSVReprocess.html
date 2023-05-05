@@ -1,0 +1,53 @@
+<template>
+<lightning-card>
+<div class="slds-box">
+    <div class="slds-grid slds-wrap" >
+       <div class="slds-align_absolute-center">
+            <h1  class="slds-text-heading_large" style="float:left; margin:8px;">
+              <span class="slds-page-header__title" title="Mass Upload CSV">Mass Upload CSV</span>
+            </h1>
+        </div>
+    </div>
+
+
+<div class="slds-grid slds-gutters">
+    <div class="slds-col slds-size_6-of-12" >
+        <lightning-combobox
+                name="Month"
+                label="Month"
+                value={monthValue}
+                placeholder="Select Month"
+                options={monthOptions}
+                onchange={handleChangeMonth} >
+        </lightning-combobox>
+    </div>
+
+    <div class="slds-col slds-size_6-of-12">
+        <lightning-combobox
+                name="Year"
+                label="Year"
+                value={yearValue}
+                placeholder="Select Year"
+                options={yearOptions}
+                onchange={handleChangeYear} >
+        </lightning-combobox>
+    </div>
+</div>
+
+<br/>
+
+<div class="slds-grid slds-wrap ">
+    <div class="slds-align_absolute-center">
+        <lightning-button 
+                variant="success" 
+                label="ReProcess" 
+                title="ReProcess"
+                onclick={handleReprocess} 
+                class="slds-var-m-right_x-small">
+        </lightning-button>
+    </div>
+</div>
+
+</div>
+</lightning-card>
+</template>

@@ -1,6 +1,13 @@
 public class MassUploadProcessAttachmentBatchHelper {
 	public static List<String>  errList = new List<String>();
-
+	
+	/**
+     * createRecords method use to create mass upload record (of record type Split) from the provided data
+     * @param rows The first parameter List<String>.
+     * @param massupload The Second parameter Mass_Upload_CSV__c.
+	 * @param bc The Third parameter Database.BatchableContext.
+     * @return void
+    */
 	public static Void createRecords(List<String> rows,Mass_Upload_CSV__c massupload,Database.BatchableContext bc){   
         try{
 			System.debug('massupload :'+massupload);
@@ -296,6 +303,12 @@ public class MassUploadProcessAttachmentBatchHelper {
 	        }
     }
 
+	/**
+     * updateLogs method update No. of Success , No. of error , assigned success and error file to split mass upload record.
+     * @param cr The first parameter Database.UpsertResult.
+     * @param massupload The Second parameter Mass_Upload_CSV__c.
+     * @return void
+    */
 	public static void updateLogs(Database.UpsertResult [] cr,Mass_upload_csv__c massupload){
         String saperator = ';';
         String successCSV = '';
@@ -375,7 +388,10 @@ public class MassUploadProcessAttachmentBatchHelper {
         update massupload;
     }
 
-	
+	/**
+     * getNext30thDayString method brings 30th date from today.
+     * @return return Date in String type
+    */
 	public static string getNext30thDayString(){
 		// Get the current date
 		Date currentDate = Date.today();

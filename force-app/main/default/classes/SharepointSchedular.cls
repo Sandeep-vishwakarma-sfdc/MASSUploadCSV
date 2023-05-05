@@ -1,13 +1,28 @@
 public with sharing class SharepointSchedular implements Schedulable {
     String folderName = '';
+    
+    /**
+     * SharepointSchedular is a constructor takes folder name of sharepoint
+     * @param folderName The first parameter folderName.
+     * @return No returns
+    */
     public SharepointSchedular(String folderName){
         this.folderName = folderName;
     }
     
+    /**
+     * execute method calls runs method of this class to create Integration Files of each file present in the provided folder in sharepoint
+     * @param sc The first parameter SchedulableContext.
+     * @return void
+    */
     public void execute(SchedulableContext sc) {
         run();
     }
 
+    /**
+     * run method brings names of the file present in the specified folder and call createIntegrationFile method of this class
+     * @return void
+    */
     public void run(){
         List<String> fileNames = new List<String>();
         if(Test.isRunningTest()){
@@ -21,6 +36,10 @@ public with sharing class SharepointSchedular implements Schedulable {
         }
     }
 
+    /**
+     * createIntegrationFile method creates Integrtion files for each file present in provided folder
+     * @return void
+    */
     public void createIntegrationFile(List<String> fileNames,String folderName){
         List<Integration_Files__c> integrationFiles = new List<Integration_Files__c>();
         

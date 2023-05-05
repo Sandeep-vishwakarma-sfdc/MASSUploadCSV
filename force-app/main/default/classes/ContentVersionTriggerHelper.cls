@@ -20,6 +20,11 @@ public with sharing class ContentVersionTriggerHelper {
         
     }
     
+    /**
+     * updateMassUploadCSV method use to update status of mass upload record to IN-progress and isAttachment to true
+     * @param newItems The first parameter Map<Id, SObject>.
+     * @return void
+    */
     public static void updateMassUploadCSV(Map<Id, SObject> newItems){
         
         
