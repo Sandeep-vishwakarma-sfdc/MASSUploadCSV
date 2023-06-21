@@ -5,15 +5,16 @@
 * @Description  This class takes foldername from SharePointSchedular and Create  Mass upload Records (Record type: Original) and assign Files to mass upload records you can see it in related list files.
 *******************************************************************************************/
 public with sharing class BatchGetCSVContent implements Database.Batchable<Integration_Files__c>,Database.AllowsCallouts{
-    String  folderName = 'folder1';//Default folder Name
-
+    String  folderName = 'folder1';//Default folder Name 
+	Boolean isFileCreated = false;
     /**
      * This is a constructor which take folder name as a input.
      * @param folderName The first String.
      * @return No return
     */
-    public BatchGetCSVContent(String folderName){
-        folderName = folderName;
+    public BatchGetCSVContent(String folderName,Boolean isFileCreated){
+        this.folderName = folderName;
+        this.isFileCreated = isFileCreated;
     }
 
     /**
@@ -22,7 +23,17 @@ public with sharing class BatchGetCSVContent implements Database.Batchable<Integ
      * @return It returns Iterable<Integration_Files__c>.
     */
     public Iterable<Integration_Files__c> start(Database.BatchableContext bc){
+        System.debug('Folder '+this.folderName);
+        List<String> fileNames = new List<String>();
+        if(!this.isFileCreated){
+            fileNames = ConnectToSharePoint.readFilesName(this.folderName);
+            SharepointSchedular sch = new SharepointSchedular(this.folderName);
+            sch.createIntegrationFile(fileNames,this.folderName);// check for Duplicate
+            SharepointSchedular.fileCreated = true;
+        }
+        
         List<Integration_Files__c> integrationFiles = [select Id,Name,Status__c,File_Name__c from Integration_Files__c where Folder_Name__c=:this.folderName and Status__c='Draft' limit 1];
+        System.debug('integrationFiles Files '+integrationFiles);
         return integrationFiles;
     }
   
@@ -96,7 +107,7 @@ public with sharing class BatchGetCSVContent implements Database.Batchable<Integ
         massupload.Object_Name__c = massUploadExternalIdRecords.ObjectName__c;
         massupload.Status__c = 'Draft';
         massupload.RecordTypeId = MassUploadSplitRecordTypeId;
-        massupload.Seperator__c = ';';
+        massupload.Seperator__c = Mass_upload_Emails__c.getValues('MarginBlockEmails').separator__c;
         insert massupload;
 
         integrationFiles.Mass_Upload_CSV__c =massupload.Id;
@@ -134,6 +145,7 @@ public with sharing class BatchGetCSVContent implements Database.Batchable<Integ
         System.debug('Words '+words);
         words.remove(words.size() - 1);
         words.remove(words.size() - 1);
+        words.remove(words.size() - 1);
         fileName = String.join(words,'_');
         System.debug('fileName '+fileName);
         Map<String,String> mapFileTypes = new Map<String,String>();
@@ -147,7 +159,8 @@ public with sharing class BatchGetCSVContent implements Database.Batchable<Integ
         mapFileTypes.put('Discount','Discount');
         mapFileTypes.put('Additional_Discount','AdditionalDiscount');
         mapFileTypes.put('PLN','PLN');
-        mapFileTypes.put('PLN_Customer','PLNCustomer');
+        mapFileTypes.put('PLN_CustomerSKU','PLNCustomer');
+        mapFileTypes.put('Exchange_Rate','USDExchangeRate');
 
         return mapFileTypes.get(fileName);// return type of record
     }

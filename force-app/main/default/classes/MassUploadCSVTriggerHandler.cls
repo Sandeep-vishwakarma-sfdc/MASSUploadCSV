@@ -4,7 +4,7 @@ public with sharing class MassUploadCSVTriggerHandler implements ITriggerHandler
     public MassUploadCSVTriggerHandler(){}
     public MassUploadCSVTriggerHandler(String settingName){
         if(triggerMetaData==null){
-            triggerMetaData = [select id,Name,ObjectName__c,IsActive__c from Trigger_Settings__c where Name=:settingName];
+            triggerMetaData = [select id,Name,ObjectName__c,IsActive__c from Trigger_Settings__c where Name=:settingName limit 1];
         }
    }
 

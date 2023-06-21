@@ -47,7 +47,7 @@ public class MassUploadProcessAttachmentBatchHelper {
 					}
 				}
 	            mapObjectName.put(tempMassExternal.Name,tempMassExternal); // {Name:'Sales_Org__r',MassUploadExternalIdRecords__c:{Name:'Sales_Org__r',ObjectName__c:'Sales_Org__c',DataType__c:'Lookup'}}
-	            if(!String.isEmpty(tempMassExternal.Type__c)){
+	            if(!String.isEmpty(tempMassExternal.Type__c) && tempMassExternal.ObjectName__c=='Price_Block_Margin_Matrix__c'){
 	            	mapMassUploadExt.put(tempMassExternal.ObjectName__c+tempMassExternal.Type__c,tempMassExternal);  // {ObjectName__c:'Price_Block_Margin_Matrix__c'+'SalesDeduction',tempMassExternal:{FieldUseInCombinationKey__c:'Profit_Center__r;Sales_Org__r;Dc;Div;SKU_Code__r;UOM__c;Type__c',ExternalId__c:'Combination_Key__c',TypeApiName__c:'Type__c'}}
 	            }else{
 	                mapMassUploadExt.put(tempMassExternal.ObjectName__c+'',tempMassExternal);// {ObjectName__c:'Price_Block_Margin_Matrix__c'+'SalesDeduction',tempMassExternal:{FieldUseInCombinationKey__c:'Profit_Center__r;Sales_Org__r;Dc;Div;SKU_Code__r;UOM__c;Type__c',ExternalId__c:'Combination_Key__c',TypeApiName__c:'Type__c'}}
@@ -83,7 +83,7 @@ public class MassUploadProcessAttachmentBatchHelper {
 	        SObjectField ObjectcombinationExternalIdField = null;
 	        List<String> ObjectcombinationKeyFields = new List<String>();
 	        System.debug('Key :'+sObjectTypeApi+massupload.File_Type__c);
-	        if(!String.isEmpty(massupload.File_Type__c)){ // For Price Blocks Margin Matrix required record types
+	        if(!String.isEmpty(massupload.File_Type__c) && sObjectTypeApi=='Price_Block_Margin_Matrix__c'){ // For Price Blocks Margin Matrix required record types
 	        	ObjectcombinationKeyFields = mapMassUploadExt.get(sObjectTypeApi+massupload.File_Type__c).FieldUseInCombinationKey__c.split(';');
 	            ObjectcombinationExternalId  = mapMassUploadExt.get(sObjectTypeApi+massupload.File_Type__c).ExternalId__c;
 	        }else{ // For Object Which does not require record types (Configuration in Mass Upload Object -> File_Type__c)
@@ -102,7 +102,7 @@ public class MassUploadProcessAttachmentBatchHelper {
 			//loop on combination and loop on row prepare row for Each combination add SalesOrg,DC,DIV
 			List<String> rowsWithSalesAreaConfig =  new List<String>();
 			List<String> skuCodes = new List<String>();
-			if(massupload.File_Type__c!='AdditionalDiscount' && massupload.File_Type__c!= 'Discount' && massupload.File_Type__c!= 'Rebate' && massupload.File_Type__c!= 'RebateCustomer' && massupload.File_Type__c!= 'PLN' && massupload.File_Type__c!= 'PLNCustomer'){
+			if(massupload.File_Type__c!='AdditionalDiscount' && massupload.File_Type__c!= 'Discount' && massupload.File_Type__c!= 'Rebate' && massupload.File_Type__c!= 'RebateCustomer' && massupload.File_Type__c!= 'PLN' && massupload.File_Type__c!= 'PLNCustomer' && massupload.File_Type__c!= 'SalesDeduction' && massupload.File_Type__c!= 'E2ECost' && massupload.File_Type__c!= 'USDExchangeRate'){
 			for(String lineItem:rows){
 				record = lineItem.split(massupload.Seperator__c);
 				/*String tempSetting = 'Depot__r;SKU_Code__r;Depot_Code__r;UOM__c;E2E_Cost_UPC9_LC__c;E2E_Cost_UPC9_USD__c;Start_Date__c;End_Date__c';
@@ -112,14 +112,14 @@ public class MassUploadProcessAttachmentBatchHelper {
 				System.debug('depotCode :'+depotCode);
 				List<Sales_Area_Configuration__c> salesAreasConfigs = mapSalesAreaConfigs.get(depotCode);
 				String depotCombination = '';
-				List<String> columns = lineItem.split(';',3);
+				List<String> columns = lineItem.split(massupload.Seperator__c,3);
 				System.debug('Columns '+columns);
 				String skucode = null;
 				System.debug('salesAreasConfigs '+salesAreasConfigs);
 				if(salesAreasConfigs != null){
 				for(Sales_Area_Configuration__c config:salesAreasConfigs){
-					depotCombination = config.Sales_Org__r.Sales_Org_Code__c+';'+ config.Distribution_Channel__r.Distribution_Channel_Code__c+';'+ config.Division__r.Division_Code__c+';';
-					skucode = depotCombination.remove(';') + record[settings.indexOf('SKU_Code__r')].leftPad(18,'0');
+					depotCombination = config.Sales_Org__r.Sales_Org_Code__c+massupload.Seperator__c+ config.Distribution_Channel__r.Distribution_Channel_Code__c+massupload.Seperator__c+ config.Division__r.Division_Code__c+massupload.Seperator__c;
+					skucode = depotCombination.remove(massupload.Seperator__c) + record[settings.indexOf('SKU_Code__r')].trim().leftPad(18,'0');
 					System.debug('skucode 1 '+skucode);
 					skuCodes.add(skucode);
 				}
@@ -148,25 +148,25 @@ public class MassUploadProcessAttachmentBatchHelper {
 				List<Sales_Area_Configuration__c> salesAreasConfigs = mapSalesAreaConfigs.get(depotCode);
 				String depotCombination = '';
 				System.debug('Before lineItem '+lineItem);
-				List<String> columns = lineItem.split(';',3);
+				List<String> columns = lineItem.split(massupload.Seperator__c,3);
 				System.debug('After lineItem '+columns);
 				String skucode = null;
 				
-				String startDateEndDate = todayString+';'+next30thDayString;
+				String startDateEndDate = todayString+massupload.Seperator__c+next30thDayString;
 				if(salesAreasConfigs != null){
 				for(Sales_Area_Configuration__c config:salesAreasConfigs){
-					depotCombination = config.Sales_Org__r.Sales_Org_Code__c+';'+ config.Distribution_Channel__r.Distribution_Channel_Code__c+';'+ config.Division__r.Division_Code__c+';';
-					skucode = depotCombination.remove(';') + record[settings.indexOf('SKU_Code__r')].leftPad(18,'0');
+					depotCombination = config.Sales_Org__r.Sales_Org_Code__c+massupload.Seperator__c+ config.Distribution_Channel__r.Distribution_Channel_Code__c+massupload.Seperator__c+ config.Division__r.Division_Code__c+massupload.Seperator__c;
+					skucode = depotCombination.remove(massupload.Seperator__c) + record[settings.indexOf('SKU_Code__r')].trim().leftPad(18,'0');
 					if(skuList.contains(skucode)){
 						if(massupload.File_Type__c=='SalesDeduction'){
-							lineItem = columns[1]+';'+depotCombination+columns[2];
+							lineItem = columns[1]+massupload.Seperator__c+depotCombination+columns[2];
 						}else if(massupload.File_Type__c=='PLN' || massupload.File_Type__c=='PLNCustomer'){
-							lineItem = depotCombination+''+columns[1]+';'+columns[2];
+							lineItem = depotCombination+''+columns[1]+massupload.Seperator__c+columns[2];
 						}else{
 							lineItem = depotCombination+lineItem;
 						}
 						if(!alreadyDateIncluded.contains(massupload.File_Type__c)){
-							lineItem = lineItem+';'+startDateEndDate;
+							lineItem = lineItem+massupload.Seperator__c+startDateEndDate;
 						}
 						rowsWithSalesAreaConfig.add(lineItem);
 					}
@@ -175,7 +175,17 @@ public class MassUploadProcessAttachmentBatchHelper {
 			}
 			/*End */
 		}else{
-			rowsWithSalesAreaConfig = rows;
+			List<String> row1 = new List<String>();
+			if(massupload.File_Type__c=='SalesDeduction' || massupload.File_Type__c=='E2ECost'){
+				String startDateEndDate = todayString+massupload.Seperator__c+next30thDayString;
+				for(String lineItem:rows){
+					lineItem = lineItem+massupload.Seperator__c+startDateEndDate;
+					row1.add(lineItem);
+				}
+			}else{
+				row1 = rows;
+			}
+			rowsWithSalesAreaConfig = row1;
 		}
 			System.debug('rowsWithSalesAreaConfig '+rowsWithSalesAreaConfig);
 			System.debug('rowsWithSalesAreaConfig size'+rowsWithSalesAreaConfig.size());
@@ -188,7 +198,7 @@ public class MassUploadProcessAttachmentBatchHelper {
 				record = lineItem.split(massupload.Seperator__c); // (LA0005,5100,MX00,Dc,Div,SKU Code,KG,11,0.58,30042022,31032023)
                 System.debug('recordsize is'+record.size());
 				
-	            if(record.size()>1){
+	            if(record.size()>3){
                     System.debug('recordsize is'+record.size());
 	                for(Integer j=0;j<=csvFields.size()-1;j++){ // loop on Fields of Price_Block_Margin_Matrix__c which is required to set (see MassUploadExternalIdRecords.CSVFields__c)
 						System.debug('For Columns '+csvFields[j]);
@@ -197,7 +207,7 @@ public class MassUploadProcessAttachmentBatchHelper {
 	                if(ObjectcombinationKeyFields.contains(csvFields[j])){ // csvFields[j]=Profit_Center__r and ObjectcombinationKeyFields=Fields Used in Combination Key
 	                    value = record[j]; // LA0005 First Time For salesdeduction
 	                    if(mapLeftpad.get(csvFields[j]) != null){
-	                        ObjectcombinationKeyValue = ObjectcombinationKeyValue+value.leftpad(mapLeftpad.get(csvFields[j]), '0');
+	                        ObjectcombinationKeyValue = ObjectcombinationKeyValue+value.trim().leftpad(mapLeftpad.get(csvFields[j]), '0');
 	                    }else{
 	                        ObjectcombinationKeyValue = ObjectcombinationKeyValue+value; // Add LA0005 to Combination Key
 	                    }
@@ -217,7 +227,7 @@ public class MassUploadProcessAttachmentBatchHelper {
 										System.debug('tempFields '+tempFields+ 'CSV '+csvFields);
 									tempRecord=record[csvFields.indexOf(tempFields)];
 									if(mapLeftpad.get(tempFields) != null){
-										tempRecord=record[csvFields.indexOf(tempFields)].leftPad(mapLeftpad.get(tempFields), '0');
+										tempRecord=record[csvFields.indexOf(tempFields)].trim().leftPad(mapLeftpad.get(tempFields), '0');
 									}
 									key = key+tempRecord;// SKU Combination Key
 									}
@@ -253,7 +263,7 @@ public class MassUploadProcessAttachmentBatchHelper {
 	                    }
 	                }// End Here tagging (Number,String,Date) value in Price Block Marin Matrix 
 	            }
-	            if(!String.isEmpty(massupload.File_Type__c)){
+	            if(!String.isEmpty(massupload.File_Type__c) && sObjectTypeApi=='Price_Block_Margin_Matrix__c'){
 					if(massupload.File_Type__c=='PLNCustomer' || massupload.File_Type__c=='RebateCustomer'){
 						massupload.File_Type__c = mapCustomerType.get(massupload.File_Type__c);
 					}
@@ -310,7 +320,7 @@ public class MassUploadProcessAttachmentBatchHelper {
      * @return void
     */
 	public static void updateLogs(Database.UpsertResult [] cr,Mass_upload_csv__c massupload){
-        String saperator = ';';
+        String saperator = massupload.Seperator__c;
         String successCSV = '';
         String errorCSV = '';
         Integer errorCount=0;

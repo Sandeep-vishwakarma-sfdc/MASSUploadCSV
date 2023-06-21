@@ -66,6 +66,7 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
     */
 	public void finish(Database.BatchableContext bc){
         System.debug('Inside Finish Method');  
+        try{
         Mass_Upload_CSV__c splitmassUploadCsv  = [select Id,Name,Parent__c,Error_records__c,Success_records__c,Total_records__c,Status__c,Comments__c from Mass_Upload_CSV__c where Id=:massupload.Id];
         String parentId = splitmassUploadCsv.Parent__c;
         Mass_Upload_CSV__c   parentMassUpload= [select ID,Name, Error_records__c,Success_records__c,Total_records__c,Status__c,Comments__c from Mass_Upload_CSV__c where id=:parentId];
@@ -111,13 +112,16 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
         integrationFile.Status__c = 'Completed';
          update integrationFile;
          String folderName = integrationFile.Folder_Name__c;
-         BatchGetCSVContent batch = new BatchGetCSVContent(folderName);
+         BatchGetCSVContent batch = new BatchGetCSVContent(folderName,true);
          Database.executeBatch(batch,1);
         }
         else
         {
             System.debug('integrationFile is1'+integrationFiles);   
          System.debug('Dont Update status');   
+        }
+        }catch(Exception e){
+            System.debug('Expection in Finish method of Mass upload Process Attachment');
         }
     }
 

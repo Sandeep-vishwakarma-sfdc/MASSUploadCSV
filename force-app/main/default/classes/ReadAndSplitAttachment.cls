@@ -202,7 +202,10 @@ public with sharing class ReadAndSplitAttachment implements Queueable{
         for(Mass_Upload_CSV__c splitMassUpload:splitMassuploads){
             splitMassuploadIds.add(splitMassUpload.Id);
         }
-        List<ContentDocumentLink> contentDocumentsLink=[select id,ContentDocumentId,LinkedEntityId from ContentDocumentLink where LinkedEntityId IN:splitMassuploadIds];
+        List<ContentDocumentLink> contentDocumentsLink = new List<ContentDocumentLink>();
+        if(splitMassuploadIds.size()>0){
+        contentDocumentsLink =[select id,ContentDocumentId,LinkedEntityId from ContentDocumentLink where LinkedEntityId IN:splitMassuploadIds];
+        }
             
         List<String> ContentdocId= new List<String>(); 
             

@@ -1,5 +1,6 @@
 public with sharing class SharepointSchedular implements Schedulable {
     String folderName = '';
+	public static boolean fileCreated = false;
     
     /**
      * SharepointSchedular is a constructor takes folder name of sharepoint
@@ -8,6 +9,12 @@ public with sharing class SharepointSchedular implements Schedulable {
     */
     public SharepointSchedular(String folderName){
         this.folderName = folderName;
+        if(String.isBlank(folderName)){
+            DateTime now = DateTime.now();
+            String formattedDate = now.format('MMM_yy');
+            System.debug('formattedDate '+formattedDate);
+            this.folderName = formattedDate;
+        }
     }
     
     /**
@@ -29,10 +36,9 @@ public with sharing class SharepointSchedular implements Schedulable {
             fileNames = new List<String>{'Sales_Deduction_1'};
                 createIntegrationFile(fileNames,folderName);
         }else{
-            fileNames = ConnectToSharePoint.readFilesName(folderName);
-            createIntegrationFile(fileNames,folderName);// check for Duplicate
-            BatchGetCSVContent batch = new BatchGetCSVContent(this.folderName);
-            Database.executeBatch(batch,1);
+            
+            BatchGetCSVContent batch = new BatchGetCSVContent(this.folderName,false);
+          Database.executeBatch(batch,1);
         }
     }
 
@@ -53,4 +59,8 @@ public with sharing class SharepointSchedular implements Schedulable {
         insert integrationFiles;
  
     }
+
+    // String jobName = 'MyCronJob';
+    // String cronExpression = '0 30 14 5 * ?'; // Runs at 2:30 PM on the 5th day of every month
+    // System.schedule(jobName, cronExpression, new MyCronJobClass());
 }

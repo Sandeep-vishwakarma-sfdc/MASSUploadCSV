@@ -126,3 +126,5 @@ system.debug('next30thDayString '+next30thDayString);
 
 SharepointSchedular sp = new SharepointSchedular('folder1');
 sp.run();
+
+System.schedule('SharepointSchedular', '0 20 12 * * ?', new SharepointSchedular('May_23'));
