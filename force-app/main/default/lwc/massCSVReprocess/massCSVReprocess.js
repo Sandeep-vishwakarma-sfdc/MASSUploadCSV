@@ -1,9 +1,6 @@
 import { LightningElement} from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import reprocess from '@salesforce/apex/MassCSVReprocessLWC.reprocess';
-const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-            ];
 export default class MassCSVReprocess extends LightningElement {
     yearValue;
     monthValue;
@@ -46,7 +43,9 @@ export default class MassCSVReprocess extends LightningElement {
     }
 
     connectedCallback(){
-        
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+            ];
 
         let date = new Date();
         this.monthValue = monthNames[date.getMonth()];

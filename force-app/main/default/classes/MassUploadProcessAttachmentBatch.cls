@@ -69,7 +69,7 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
         try{
         Mass_Upload_CSV__c splitmassUploadCsv  = [select Id,Name,Parent__c,Error_records__c,Success_records__c,Total_records__c,Status__c,Comments__c from Mass_Upload_CSV__c where Id=:massupload.Id];
         String parentId = splitmassUploadCsv.Parent__c;
-        Mass_Upload_CSV__c   parentMassUpload= [select ID,Name, Error_records__c,Success_records__c,Total_records__c,Status__c,Comments__c from Mass_Upload_CSV__c where id=:parentId];
+        Mass_Upload_CSV__c   parentMassUpload= [select ID,Name, Error_records__c,Success_records__c,Total_records__c,Status__c,Comments__c,Object_Name__c from Mass_Upload_CSV__c where id=:parentId];
         Integer totalSuccessCount = 0;
         Integer totalErrorCount = 0;
         Integer totalRecordsCount=0;
@@ -89,18 +89,27 @@ public class MassUploadProcessAttachmentBatch implements Database.Batchable<sObj
             parentMassUpload.Status__c=split.Status__c;
             parentMassUpload.Comments__c=split.Comments__c; 
             }
-        //parentMassUpload.Status__c='Completed';
+        //parentMassUpload.Status__c='Completed'; parentMassUpload.Object_Name__c
             
                     
              Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();                   
              mail.setUseSignature(false);
              mail.setToAddresses(new String[] { Mass_upload_Emails__c.getValues('MarginBlockEmails').email__c });
-             mail.setSubject(massupload.File_Type__c+'Successfully process');
-             mail.setHtmlBody('Dear User,<br /><br />Your Records are Successfully processd<br /><br />Date: '+dateString+'<br /><br />No. of Total records: '+ parentMassUpload.Total_records__c+'<br /><br />No. of Success records: '+ parentMassUpload.Success_records__c+'<br /><br />No. of Error records: '+ parentMassUpload.Error_records__c+'<br /><br />Regards,<br/>UPL Salesforce Administrator<br />');
+             if(String.isEmpty(massupload.File_Type__c)){
+                mail.setSubject('Incorrect File Name - Failed to process');
+             }else{
+                mail.setSubject(massupload.File_Type__c+' - Successfully process');
+             }
+             
+            //  mail.setHtmlBody('Dear User,<br /><br />Your Records are Successfully processed<br /><br />Date: '+dateString+'<br /><br />No. of Total records: '+ parentMassUpload.Total_records__c+'<br /><br />No. of Success records: '+ parentMassUpload.Success_records__c+'<br /><br />No. of Error records: '+ parentMassUpload.Error_records__c+'<br /><br />Regards,<br/>UPL Salesforce Administrator<br />');
+
+            String body = '<p>Dear User, Mass upload Record Uploaded Successfully</p> <table border="1" style="border-collapse: collapse"> <thead> <tr> <th>Object Name</th> <th>'+ parentMassUpload.Object_Name__c+'</th> </tr> </thead> <tbody><tr> <td>Mass Upload Record Id</td> <td>'+ parentMassUpload.Id+'</td> </tr> <tr> <td>Total Records</td> <td>'+ parentMassUpload.Total_records__c+'</td> </tr> <tr> <td>Sucess Records</td> <td>'+ parentMassUpload.Success_records__c+'</td> </tr> <tr> <td>Error Records</td> <td>'+ parentMassUpload.Error_records__c+'</td> </tr> </tbody></table> <p>Regards, UPL Salesforce Administrator</p>';
+            mail.setHtmlBody(body);
+
            //mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attach1 }); 
-           if(errorCount==0){
+        //    if(errorCount==0){
              Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
-           }
+        //    }
              update parentMassUpload; 
 
          

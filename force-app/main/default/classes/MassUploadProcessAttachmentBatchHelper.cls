@@ -154,6 +154,7 @@ public class MassUploadProcessAttachmentBatchHelper {
 				
 				String startDateEndDate = todayString+massupload.Seperator__c+next30thDayString;
 				if(salesAreasConfigs != null){
+					String templineItem = lineItem;
 				for(Sales_Area_Configuration__c config:salesAreasConfigs){
 					depotCombination = config.Sales_Org__r.Sales_Org_Code__c+massupload.Seperator__c+ config.Distribution_Channel__r.Distribution_Channel_Code__c+massupload.Seperator__c+ config.Division__r.Division_Code__c+massupload.Seperator__c;
 					skucode = depotCombination.remove(massupload.Seperator__c) + record[settings.indexOf('SKU_Code__r')].trim().leftPad(18,'0');
@@ -169,6 +170,11 @@ public class MassUploadProcessAttachmentBatchHelper {
 							lineItem = lineItem+massupload.Seperator__c+startDateEndDate;
 						}
 						rowsWithSalesAreaConfig.add(lineItem);
+						lineItem =  templineItem;
+					}else{
+						lineItem = templineItem;
+						System.debug(lineItem+' SKU Not Present');
+						errList.add(lineItem+ 'SKU Not Present');
 					}
 				}
 				}
@@ -256,7 +262,11 @@ public class MassUploadProcessAttachmentBatchHelper {
 	                        }
 	                        if(fieldDataType=='Date'){
 								String Date1 = record[j];
-								Date d = Date.newInstance(Integer.valueOf(record[j].subString(4,8)),Integer.valueOf(record[j].subString(2,4)), Integer.valueOf(record[j].subString(0,2)));
+								Integer tempyear = Integer.valueOf(record[j].subString(4,8));
+								if(tempyear > System.today().year()+100){
+									tempyear = System.today().year()+100;
+								}
+								Date d = Date.newInstance(tempyear,Integer.valueOf(record[j].subString(2,4)), Integer.valueOf(record[j].subString(0,2)));
 	                            obj.put(csvFields[j], d);    
 	                        }
 	                    }  

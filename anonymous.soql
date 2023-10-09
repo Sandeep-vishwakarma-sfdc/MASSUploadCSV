@@ -128,3 +128,8 @@ SharepointSchedular sp = new SharepointSchedular('folder1');
 sp.run();
 
 System.schedule('SharepointSchedular', '0 20 12 * * ?', new SharepointSchedular('May_23'));
+
+
+java -jar C:\apexDoc\apexdoc.jar  -s F:\SANDEEP\salesforce\MassUploadCSV\force-app\main\default\classes -t F:\SANDEEP\salesforce\MassUploadCSV\doc
+
+pmd.bat -d "F:\SANDEEP\salesforce\MassUploadCSV\force-app\main\default\classes" -f html -R "F:\SANDEEP\Softwares\pmd-bin-6.42.0\ruleset.xml" -reportfile "F:\SANDEEP\salesforce\MassUploadCSV\doc\report.html"
